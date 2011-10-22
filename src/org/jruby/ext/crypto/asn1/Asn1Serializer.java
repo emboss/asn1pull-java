@@ -37,8 +37,6 @@ import java.io.OutputStream;
  */
 public class Asn1Serializer {
     
-    private static final byte[] END_OF_CONTENTS = new byte[] { (byte)0x00, (byte)0x00 };
-    
     private Asn1Serializer() {}
     
     public static void serialize(Asn1 asn, OutputStream out) {
