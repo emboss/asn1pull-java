@@ -37,7 +37,7 @@ import org.jruby.ext.crypto.asn1.parser.PullHeaderParser;
  */
 public class ParserFactory {
    
-    public HeaderParser newHeaderParser(InputStream in) {
+    public Parser newHeaderParser(InputStream in) {
         return new PullHeaderParser(in);
     }
 }

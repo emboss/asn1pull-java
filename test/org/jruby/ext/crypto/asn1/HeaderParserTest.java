@@ -43,7 +43,7 @@ public class HeaderParserTest {
     public void parseTokensSkipping() {
         int numTokens = 0;
         ParsedHeader h;
-        HeaderParser p = new ParserFactory().newHeaderParser(Resources.certificate());
+        Parser p = new ParserFactory().newHeaderParser(Resources.certificate());
         while ((h = p.next()) != null) {
             numTokens++;
             h.skipValue();
@@ -55,7 +55,7 @@ public class HeaderParserTest {
     public void getValueMovesCursorForward() {
         int numTokens = 0;
         ParsedHeader token;
-        HeaderParser p = new ParserFactory().newHeaderParser(Resources.certificate());
+        Parser p = new ParserFactory().newHeaderParser(Resources.certificate());
         while ((token = p.next()) != null) {
             numTokens++;
             token.getValue(); //need to consume the value bytes
@@ -67,7 +67,7 @@ public class HeaderParserTest {
     public void consumeStreams() {
         int numTokens = 0;
         ParsedHeader token;
-        HeaderParser p = new ParserFactory().newHeaderParser(Resources.certificate());
+        Parser p = new ParserFactory().newHeaderParser(Resources.certificate());
         while ((token = p.next()) != null) {
             numTokens++;
             consumeTokenStream(token); //need to consume the value bytes
@@ -99,7 +99,7 @@ public class HeaderParserTest {
     public void parseTokensAndTestMethods() {
         int numTokens = 0;
         ParsedHeader token;
-        HeaderParser p = new ParserFactory().newHeaderParser(Resources.certificate());
+        Parser p = new ParserFactory().newHeaderParser(Resources.certificate());
         while ((token = p.next()) != null) {
             numTokens++;
             assertTrue(token.getLength() != 0);
@@ -113,7 +113,7 @@ public class HeaderParserTest {
     
     @Test(expected=ParseException.class)
     public void nextWithoutConsumptionThrows() {
-        HeaderParser p = new ParserFactory().newHeaderParser(Resources.certificate());
+        Parser p = new ParserFactory().newHeaderParser(Resources.certificate());
         p.next();
         p.next();
     }

@@ -28,7 +28,7 @@
 package org.jruby.ext.crypto.asn1.parser;
 
 import java.io.InputStream;
-import org.jruby.ext.crypto.asn1.HeaderParser;
+import org.jruby.ext.crypto.asn1.Parser;
 import org.jruby.ext.crypto.asn1.ParsedHeader;
 
 
@@ -36,7 +36,7 @@ import org.jruby.ext.crypto.asn1.ParsedHeader;
  * 
  * @author <a href="mailto:Martin.Bosslet@googlemail.com">Martin Bosslet</a>
  */
-public class PullHeaderParser implements HeaderParser {
+public class PullHeaderParser implements Parser {
 
     private final InputStream in;
 

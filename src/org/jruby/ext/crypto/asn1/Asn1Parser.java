@@ -45,14 +45,14 @@ public class Asn1Parser {
     }
     
     public Asn1 parse(InputStream in) {
-        HeaderParser hp = parserFactory.newHeaderParser(in);
+        Parser hp = parserFactory.newHeaderParser(in);
         ParsedHeader h = hp.next();
         if (h == null)
             return null;
         return parse(hp, h);
     }
     
-    private Asn1 parse(HeaderParser hp, ParsedHeader h) {
+    private Asn1 parse(Parser hp, ParsedHeader h) {
         if (h == null) throw new NullPointerException();
         
         if (h.isConstructed())
@@ -65,7 +65,7 @@ public class Asn1Parser {
         return new Primitive(new HeaderImpl(h), h.getValue());
     }
     
-    private Constructed parseConstructed(HeaderParser hp, ParsedHeader h) {
+    private Constructed parseConstructed(Parser hp, ParsedHeader h) {
         List<Asn1> contents = new ArrayList<Asn1>();
         ParsedHeader nested;
         while ((nested = hp.next()) != null) {
