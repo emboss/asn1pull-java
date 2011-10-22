@@ -30,10 +30,6 @@ package org.jruby.ext.crypto.asn1;
 import org.jruby.ext.crypto.asn1.resources.Resources;
 import java.io.IOException;
 import java.io.InputStream;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -42,25 +38,6 @@ import static org.junit.Assert.*;
  * @author <a href="mailto:Martin.Bosslet@googlemail.com">Martin Bosslet</a>
  */
 public class HeaderParserTest {
-    
-    public HeaderParserTest() {
-    }
-
-    @BeforeClass
-    public static void setUpClass() throws Exception {
-    }
-
-    @AfterClass
-    public static void tearDownClass() throws Exception {
-    }
-    
-    @Before
-    public void setUp() {
-    }
-    
-    @After
-    public void tearDown() {
-    }
     
     @Test
     public void parseTokensSkipping() {
