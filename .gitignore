@@ -1,0 +1,9 @@
+nbproject
+build
+dist
+doc
+tmp
+build.xml
+*.class
+*.swp
+
