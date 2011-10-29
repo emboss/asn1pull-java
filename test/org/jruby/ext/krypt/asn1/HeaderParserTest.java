@@ -119,23 +119,15 @@ public class HeaderParserTest {
         }
     }
     
-    private static void consumeTokenStream(ParsedHeader token) {
+    private static void consumeTokenStream(ParsedHeader token) throws IOException{
         InputStream in = token.getValueStream();
 
         try {
             byte[] buf = new byte[8192];
             while (in.read(buf) != -1) {}
         }
-        catch (IOException ex) {
-            throw new RuntimeException(ex);
-        }
         finally {
-            try {
-                in.close();
-            }
-            catch (IOException ex) {
-                //silent
-            }
+            in.close();
         }
     }
     
