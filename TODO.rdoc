@@ -1,1 +1,2 @@
 * If content is of length 0, use null instead of an empty byte array.
+* Enable streaming for OCTET_STRING, BIT_STRING etc. (currently no real streaming at all)

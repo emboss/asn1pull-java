@@ -75,13 +75,12 @@ public class PullHeaderParser implements Parser {
 
             @Override
             public void skipValue() {
-                if (length.isInfiniteLength())
-                    throw new IllegalStateException("Not supported when current header is infinite length.");
-                readBytes(length.getLength());
+                getValue();
             }
 
             @Override
             public byte[] getValue() {
+                //TODO: Make this work for OCTET_STRING etc.
                 if (length.isInfiniteLength())
                     throw new IllegalStateException("Not supported when current header is infinite length.");
                 return readBytes(length.getLength());
@@ -89,6 +88,7 @@ public class PullHeaderParser implements Parser {
 
             @Override
             public InputStream getValueStream() {
+                //TODO: Make this work for OCTET_STRING etc.
                 if (length.isInfiniteLength())
                     throw new IllegalStateException("Not supported when current header is infinite length.");
                 return new ByteArrayInputStream(readBytes(length.getLength()));
