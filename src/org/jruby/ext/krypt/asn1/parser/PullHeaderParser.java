@@ -75,17 +75,23 @@ public class PullHeaderParser implements Parser {
 
             @Override
             public void skipValue() {
-                readBytes(length);
+                if (length.isInfiniteLength())
+                    throw new IllegalStateException("Not supported when current header is infinite length.");
+                readBytes(length.getLength());
             }
 
             @Override
             public byte[] getValue() {
-                return readBytes(length);
+                if (length.isInfiniteLength())
+                    throw new IllegalStateException("Not supported when current header is infinite length.");
+                return readBytes(length.getLength());
             }
 
             @Override
             public InputStream getValueStream() {
-                return new ByteArrayInputStream(readBytes(length));
+                if (length.isInfiniteLength())
+                    throw new IllegalStateException("Not supported when current header is infinite length.");
+                return new ByteArrayInputStream(readBytes(length.getLength()));
             }
 
             @Override
@@ -150,12 +156,12 @@ public class PullHeaderParser implements Parser {
         return ((byte)(test & mask)) == mask;
     }
     
-    private byte[] readBytes(Length len) {
+    private byte[] readBytes(long length) {
         
         byte[] buf = new byte[8192];
         int read = 0;
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        long length = len.getLength(), total = 0;
+        long total = 0;
         
         while (total != length) {
             try {
