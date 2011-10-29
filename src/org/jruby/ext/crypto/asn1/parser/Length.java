@@ -27,6 +27,10 @@
  */
 package org.jruby.ext.crypto.asn1.parser;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import org.jruby.ext.crypto.asn1.SerializationException;
+
 
 /**
  * 
@@ -56,8 +60,13 @@ class Length {
         return encoding.length;
     }
     
-    public byte[] encode() {
-        return encoding;
+    public void encodeTo(OutputStream out) {
+        try {
+            out.write(encoding);
+        }
+        catch (IOException ex) {
+            throw new SerializationException(ex);
+        }
     }
     
 }

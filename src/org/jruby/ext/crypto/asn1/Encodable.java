@@ -25,58 +25,17 @@
 * the provisions above, a recipient may use your version of this file under
 * the terms of any one of the CPL, the GPL or the LGPL.
  */
-package org.jruby.ext.crypto.asn1.parser;
+package org.jruby.ext.crypto.asn1;
 
-import java.io.IOException;
 import java.io.OutputStream;
-import org.jruby.ext.crypto.asn1.SerializationException;
-import org.jruby.ext.crypto.asn1.TagClass;
 
 
 /**
- * 
+ *
  * @author <a href="mailto:Martin.Bosslet@googlemail.com">Martin Bosslet</a>
  */
-class Tag {
-    
-    private final int tag;
-    private final TagClass tc;
-    private final boolean isConstructed;
-    
-    private final byte[] encoding;
-    
-    Tag(int tag, 
-        TagClass tc, 
-        boolean isConstructed, 
-        byte[] encoding) {
-        this.tag = tag;
-        this.tc = tc;
-        this.isConstructed = isConstructed;
-        this.encoding = encoding;
-    }
-    
-    public int getTag() {
-        return tag;
-    }
-    
-    public TagClass getTagClass() {
-        return tc;
-    }
-    
-    public boolean isConstructed() {
-        return isConstructed;
-    }
+public interface Encodable {
 
-    public int getEncodingLength() {
-        return encoding.length;
-    }
-    
-    public void encodeTo(OutputStream out) {
-        try {
-            out.write(encoding);
-        }
-        catch (IOException ex) {
-            throw new SerializationException(ex);
-        }
-    }
+        public void encodeTo(OutputStream out);
+
 }

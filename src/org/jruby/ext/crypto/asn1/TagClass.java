@@ -68,9 +68,9 @@ public enum TagClass {
     
     private static class Masks {
         static final byte UNIVERSAL_MASK        = (byte)0x00;
-        static final byte APPLICATION_MASK      = ((byte)0x40);
-        static final byte CONTEXT_SPECIFIC_MASK = ((byte)0x80);
-        static final byte PRIVATE_MASK          = ((byte)0xc0);
+        static final byte APPLICATION_MASK      = (byte)0x40;
+        static final byte CONTEXT_SPECIFIC_MASK = (byte)0x80;
+        static final byte PRIVATE_MASK          = (byte)0xc0;
     }
 
 }

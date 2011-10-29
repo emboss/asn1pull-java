@@ -49,22 +49,17 @@ public class Asn1Serializer {
     }
     
     private static void serializeConstructed(Constructed c, OutputStream out) {
-        try {
-            out.write(c.getHeader().encode());
-            for (Asn1 asn : c.getValue()) {
-                serialize(asn, out);
-            }
-        } 
-        catch (IOException ex) {
-            throw new SerializationException(ex);
+        c.getHeader().encodeTo(out);
+        for (Asn1 asn : c.getValue()) {
+            serialize(asn, out);
         }
     }
     
     private static void serializePrimitive(Primitive p, OutputStream out) {
         try {
-            out.write(p.getHeader().encode());
+            p.getHeader().encodeTo(out);
             out.write(p.getValue());
-        } 
+        }
         catch (IOException ex) {
             throw new SerializationException(ex);
         }

@@ -27,10 +27,12 @@
  */
 package org.jruby.ext.crypto.asn1.parser;
 
+import org.jruby.ext.crypto.asn1.Encodable;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import org.jruby.ext.crypto.asn1.Header;
 import org.jruby.ext.crypto.asn1.ParseException;
 import org.jruby.ext.crypto.asn1.Parser;
@@ -44,7 +46,7 @@ import org.jruby.ext.crypto.asn1.TagClass;
  */
 public class PullHeaderParser implements Parser {
 
-    private static final int LONG_BYTE_LEN = 8;
+    private static final int LONG_BYTE_LEN = Long.SIZE / 8;
     
     private final InputStream in;
 
@@ -61,6 +63,13 @@ public class PullHeaderParser implements Parser {
         //TODO: Implement this properly
         final Tag tag = parseTag(b);
 	final Length length = parseLength();
+        final Encodable enc = new Encodable() {
+            public void encodeTo(OutputStream out) {
+                tag.encodeTo(out);
+                length.encodeTo(out);
+            }
+        };
+
         return new ParsedHeader() {
 
             @Override
@@ -108,17 +117,15 @@ public class PullHeaderParser implements Parser {
                 return tag.getEncodingLength() + length.getEncodingLength();
             }
 
-
-
             @Override
-            public byte[] encode() {
-                byte[] tagBytes = tag.encode();
-                byte[] lengthBytes = length.encode();
-                byte[] ret = new byte[tagBytes.length + lengthBytes.length];
-                System.arraycopy(tagBytes, 0, ret, 0, tagBytes.length);
-                System.arraycopy(lengthBytes, 0, ret, tagBytes.length, lengthBytes.length);
-                return ret;
+            public void encodeTo(OutputStream out) {
+                enc.encodeTo(out);
             }
+
+            public Encodable getEncodable() {
+                return enc;
+            }
+            
         };
     }
     

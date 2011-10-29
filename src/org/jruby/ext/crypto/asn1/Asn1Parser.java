@@ -28,6 +28,7 @@
 package org.jruby.ext.crypto.asn1;
 
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -64,7 +65,7 @@ public class Asn1Parser {
     }
     
     private Primitive parsePrimitive(ParsedHeader h) {
-        return new Primitive(new HeaderImpl(h), h.getValue());
+        return new Primitive(new HeaderImpl(h, h.getEncodable()), h.getValue());
     }
     
     private Constructed parseConstructed(Parser hp, ParsedHeader h) {
@@ -82,14 +83,32 @@ public class Asn1Parser {
 
         while (curLen != len) {
 	    nested = hp.next();
+            if (Long.MAX_VALUE - nested.getHeaderLength() - curLen < nested.getLength())
+                throw new ParseException("Constructed sequence is too long.");
             curLen = curLen + nested.getHeaderLength() + nested.getLength();
+            if (curLen > len)
+                throw new ParseException("Malformed encoding. Single lengths of "+
+                                         "constructed value do not add up to total value");
             contents.add(parse(hp, nested));
         }
-        return new Constructed(new HeaderImpl(h), contents);
+        return new Constructed(new HeaderImpl(h, h.getEncodable()), contents);
     }
 
     private Constructed parseInfiniteConstructed(Parser hp, ParsedHeader h) {
-	    throw new UnsupportedOperationException();
+        List<Asn1> contents = new ArrayList<Asn1>();
+	boolean parsedEof = false;
+        ParsedHeader nested;
+
+        while (!parsedEof) {
+	    nested = hp.next();
+            contents.add(parse(hp, nested));
+            if (nested.getTag() == Tags.END_OF_CONTENTS) {
+                if (nested.getLength() != 0)
+                    throw new ParseException("EOF tag with length > 0 found.");
+                parsedEof = true;
+            }
+        }
+        return new Constructed(new HeaderImpl(h, h.getEncodable()), contents);
     }
     
     private static class HeaderImpl implements Header {
@@ -100,16 +119,16 @@ public class Asn1Parser {
         private final TagClass tc;
         private final boolean isInfinite;
         private final boolean isConstructed;
-        private final byte[] encoded;
+        private final Encodable enc;
 
-        public HeaderImpl(ParsedHeader h) {
+        public HeaderImpl(ParsedHeader h, Encodable enc) {
             this.length = h.getLength();
             this.headerLength = h.getHeaderLength();
             this.tag = h.getTag();
             this.tc = h.getTagClass();
             this.isInfinite = h.isInfiniteLength();
             this.isConstructed = h.isConstructed();
-            this.encoded = h.encode();
+            this.enc = enc;
         }
         
         @Override
@@ -143,8 +162,8 @@ public class Asn1Parser {
         }
 
         @Override
-        public byte[] encode() {
-            return encoded;
+        public void encodeTo(OutputStream out) {
+            enc.encodeTo(out);
         }
         
     }

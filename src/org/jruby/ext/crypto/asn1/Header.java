@@ -32,8 +32,8 @@ package org.jruby.ext.crypto.asn1;
  * 
  * @author <a href="mailto:Martin.Bosslet@googlemail.com">Martin Bosslet</a>
  */
-public interface Header {
-    
+public interface Header extends Encodable {
+
     public static final byte CONSTRUCTED_MASK     = (byte)0x20;
     public static final byte COMPLEX_TAG_MASK     = (byte)0x1f;
     public static final byte INFINITE_LENGTH_MASK = (byte)0x80;
@@ -45,6 +45,4 @@ public interface Header {
     public long getLength();
     public int getHeaderLength();
     
-    //TODO make this "public void encodeTo(OutputStream out)"
-    public byte[] encode();
 }

@@ -41,6 +41,7 @@ public class Asn1ParserTest {
     
     @Test
     public void parseConstructed() {
+        System.out.println(Long.SIZE);
         Asn1Parser p = new Asn1Parser(new ParserFactory());
         Asn1 asn = p.parse(Resources.certificate());
         assertNotNull(asn);

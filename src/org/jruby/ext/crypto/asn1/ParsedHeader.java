@@ -39,5 +39,6 @@ public interface ParsedHeader extends Header {
     public void skipValue();
     public byte[] getValue();
     public InputStream getValueStream();
+    public Encodable getEncodable();
     
 }
