@@ -119,7 +119,7 @@ public class HeaderParserTest {
         }
     }
     
-    private static void consumeTokenStream(ParsedHeader token) throws IOException{
+    private static void consumeTokenStream(ParsedHeader token) throws IOException {
         InputStream in = token.getValueStream();
 
         try {
