@@ -4,7 +4,7 @@ Features an ASN.1 pull parser with full streaming support.
 
 == Requirements
 
-Java SE 5 and higher.
+Java SE 5 or higher.
  
 === Note 
 
