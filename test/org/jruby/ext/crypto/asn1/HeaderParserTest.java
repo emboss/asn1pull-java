@@ -110,11 +110,4 @@ public class HeaderParserTest {
             assertNotNull(token.getValue());
         }
     }
-    
-    @Test(expected=ParseException.class)
-    public void nextWithoutConsumptionThrows() {
-        Parser p = new ParserFactory().newHeaderParser(Resources.certificate());
-        p.next();
-        p.next();
-    }
 }

@@ -25,25 +25,35 @@
 * the provisions above, a recipient may use your version of this file under
 * the terms of any one of the CPL, the GPL or the LGPL.
  */
-package org.jruby.ext.crypto.asn1;
+package org.jruby.ext.crypto.asn1.parser;
 
 
 /**
  * 
  * @author <a href="mailto:Martin.Bosslet@googlemail.com">Martin Bosslet</a>
  */
-public interface Header {
+class Length {
     
-    public static final byte CONSTRUCTED_MASK     = (byte)0x20;
-    public static final byte COMPLEX_TAG_MASK     = (byte)0x1f;
-    public static final byte INFINITE_LENGTH_MASK = (byte)0x80;
+    private final long length;
+    private final byte[] encoding;
+    private final boolean isInfiniteLength;
     
-    public int getTag();
-    public TagClass getTagClass();
-    public boolean isConstructed();
-    public boolean isInfiniteLength();
-    public long getLength();
+    public Length(long length, boolean isInfiniteLength, byte[] encoding) {
+        this.length = length;
+        this.isInfiniteLength = isInfiniteLength;
+        this.encoding = encoding;
+    }
     
-    //TODO make this "public void encodeTo(OutputStream out)"
-    public byte[] encode();
+    public long getLength() {
+        return length;
+    }
+    
+    public boolean isInfiniteLength() {
+        return isInfiniteLength;
+    }
+    
+    public byte[] encode() {
+        return encoding;
+    }
+    
 }

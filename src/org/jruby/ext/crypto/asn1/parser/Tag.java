@@ -25,25 +25,46 @@
 * the provisions above, a recipient may use your version of this file under
 * the terms of any one of the CPL, the GPL or the LGPL.
  */
-package org.jruby.ext.crypto.asn1;
+package org.jruby.ext.crypto.asn1.parser;
+
+import org.jruby.ext.crypto.asn1.TagClass;
 
 
 /**
  * 
  * @author <a href="mailto:Martin.Bosslet@googlemail.com">Martin Bosslet</a>
  */
-public interface Header {
+class Tag {
     
-    public static final byte CONSTRUCTED_MASK     = (byte)0x20;
-    public static final byte COMPLEX_TAG_MASK     = (byte)0x1f;
-    public static final byte INFINITE_LENGTH_MASK = (byte)0x80;
+    private final int tag;
+    private final TagClass tc;
+    private final boolean isConstructed;
     
-    public int getTag();
-    public TagClass getTagClass();
-    public boolean isConstructed();
-    public boolean isInfiniteLength();
-    public long getLength();
+    private final byte[] encoding;
     
-    //TODO make this "public void encodeTo(OutputStream out)"
-    public byte[] encode();
+    Tag(int tag, 
+        TagClass tc, 
+        boolean isConstructed, 
+        byte[] encoding) {
+        this.tag = tag;
+        this.tc = tc;
+        this.isConstructed = isConstructed;
+        this.encoding = encoding;
+    }
+    
+    public int getTag() {
+        return tag;
+    }
+    
+    public TagClass getTagClass() {
+        return tc;
+    }
+    
+    public boolean isConstructed() {
+        return isConstructed;
+    }
+    
+    public byte[] encode() {
+        return encoding;
+    }
 }

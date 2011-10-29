@@ -33,19 +33,44 @@ package org.jruby.ext.crypto.asn1;
  * @author <a href="mailto:Martin.Bosslet@googlemail.com">Martin Bosslet</a>
  */
 public enum TagClass {
-    UNIVERSAL       ((byte)0x00),
-    APPLICATION     ((byte)0x40),
-    CONTEXT_SPECIFIC((byte)0x80),
-    PRIVATE         ((byte)0xc0);
+    
+    UNIVERSAL       (Masks.UNIVERSAL_MASK),
+    APPLICATION     (Masks.APPLICATION_MASK),
+    CONTEXT_SPECIFIC(Masks.CONTEXT_SPECIFIC_MASK),
+    PRIVATE         (Masks.PRIVATE_MASK);
     
     TagClass(byte mask) {
         this.mask = mask;
     }
     
+    
+    
     private final byte mask;
     
     public byte getMask() {
         return mask;
+    }
+    
+    public static TagClass of(byte b) {
+        switch (b) {
+            case Masks.UNIVERSAL_MASK:
+                return UNIVERSAL;
+            case Masks.APPLICATION_MASK:
+                return APPLICATION;
+            case Masks.CONTEXT_SPECIFIC_MASK:
+                return CONTEXT_SPECIFIC;
+            case Masks.PRIVATE_MASK:
+                return PRIVATE;
+            default:
+                throw new IllegalArgumentException("Unknown tag class: " + b);
+        }
+    }
+    
+    private static class Masks {
+        static final byte UNIVERSAL_MASK        = (byte)0x00;
+        static final byte APPLICATION_MASK      = ((byte)0x40);
+        static final byte CONTEXT_SPECIFIC_MASK = ((byte)0x80);
+        static final byte PRIVATE_MASK          = ((byte)0xc0);
     }
 
 }

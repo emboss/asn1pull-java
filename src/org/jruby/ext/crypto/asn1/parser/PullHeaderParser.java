@@ -27,9 +27,15 @@
  */
 package org.jruby.ext.crypto.asn1.parser;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import org.jruby.ext.crypto.asn1.Header;
+import org.jruby.ext.crypto.asn1.ParseException;
 import org.jruby.ext.crypto.asn1.Parser;
 import org.jruby.ext.crypto.asn1.ParsedHeader;
+import org.jruby.ext.crypto.asn1.TagClass;
 
 
 /**
@@ -38,6 +44,8 @@ import org.jruby.ext.crypto.asn1.ParsedHeader;
  */
 public class PullHeaderParser implements Parser {
 
+    private static final int LONG_BYTE_LEN = 8;
+    
     private final InputStream in;
 
     public PullHeaderParser(InputStream in) {
@@ -46,7 +54,156 @@ public class PullHeaderParser implements Parser {
     
     @Override
     public ParsedHeader next() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        int read = nextInt();
+        if (read == -1) 
+            return null;
+        byte b = (byte)read;
+        //TODO: Implement this properly
+        final Tag tag = parseTag(b);
+        final Length length = parseLength(b);
+        return new ParsedHeader() {
+
+            @Override
+            public void skipValue() {
+                readBytes(length);
+            }
+
+            @Override
+            public byte[] getValue() {
+                return readBytes(length);
+            }
+
+            @Override
+            public InputStream getValueStream() {
+                return new ByteArrayInputStream(readBytes(length));
+            }
+
+            @Override
+            public int getTag() {
+                return tag.getTag();
+            }
+
+            @Override
+            public TagClass getTagClass() {
+                return tag.getTagClass();
+            }
+
+            @Override
+            public boolean isConstructed() {
+                return tag.isConstructed();
+            }
+
+            @Override
+            public boolean isInfiniteLength() {
+                return length.isInfiniteLength();
+            }
+
+            @Override
+            public long getLength() {
+                return length.getLength();
+            }
+
+            @Override
+            public byte[] encode() {
+                byte[] tagBytes = tag.encode();
+                byte[] lengthBytes = length.encode();
+                byte[] ret = new byte[tagBytes.length + lengthBytes.length];
+                System.arraycopy(tagBytes, 0, ret, 0, tagBytes.length);
+                System.arraycopy(lengthBytes, 0, ret, tagBytes.length, lengthBytes.length);
+                return ret;
+            }
+        };
     }
     
+    private byte nextByte() {
+        int read = nextInt();
+        if (read == -1) 
+            throw new ParseException("EOF reached.");
+        return (byte)read;
+    }
+    
+    private int nextInt() {
+        try {
+            return in.read();
+        }
+        catch (IOException ex) {
+            throw new ParseException(ex);
+        }
+    }
+    
+    private static boolean matchMask(byte test, byte mask) {
+        return ((byte)(test & mask)) == mask;
+    }
+    
+    private byte[] readBytes(Length len) {
+        
+        byte[] buf = new byte[8192];
+        int read = 0;
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        long length = len.getLength(), total = 0;
+        
+        while (total != length) {
+            try {
+                //TODO: Hack - treat long correctly
+                read = in.read(buf, 0, (int)(length - total));
+                if (read == -1)
+                    throw new ParseException("EOF reached while parsing value");
+                total += read;
+                baos.write(buf, 0, read);
+            }
+            catch (IOException ex) {
+                throw new ParseException(ex);
+            }
+        }
+        
+        return baos.toByteArray();
+    }
+    
+    private Tag parseTag(byte b) {
+        if (matchMask(b, Header.COMPLEX_TAG_MASK))
+            return parseComplexTag(b);
+        else
+            return parsePrimitiveTag(b);
+    }
+    
+    private Tag parsePrimitiveTag(byte b) {
+        int tag = b & Header.COMPLEX_TAG_MASK;
+        boolean isConstructed = matchMask(b, Header.CONSTRUCTED_MASK);
+        TagClass tc = TagClass.of((byte)(b & TagClass.PRIVATE.getMask()));
+        return new Tag(tag, tc, isConstructed, new byte[] { b });
+    }
+    
+    private Tag parseComplexTag(byte b) {
+        throw new UnsupportedOperationException();
+    }
+    
+    private Length parseLength(byte b) {
+        if (b == Header.INFINITE_LENGTH_MASK)
+            return new Length(-1, true, new byte[] { b });
+        else if (matchMask(b, Header.INFINITE_LENGTH_MASK))
+            return parseComplexDefiniteLength(b);
+        else
+            return new Length(b & 0xff, false, new byte[] { b });
+    }
+    
+    private Length parseComplexDefiniteLength(byte b) {
+        long len = 0;
+        int numOctets = b & 0x7f;
+        
+        if (numOctets > LONG_BYTE_LEN)
+            throw new ParseException("Definite value length too long.");
+        
+        byte[] encoding = new byte[numOctets+1];
+        encoding[0] = b;
+        int off = 1;
+        
+        for (int i=numOctets; i > 0; i--) {
+            b = nextByte();
+            len <<= 8;
+            len |= b;
+            encoding[off++] = b;
+        }
+        
+        return new Length(len, false, encoding);
+    }
 }
