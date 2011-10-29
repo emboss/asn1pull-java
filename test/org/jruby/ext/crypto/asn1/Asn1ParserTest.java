@@ -28,7 +28,6 @@
 package org.jruby.ext.crypto.asn1;
 
 import java.io.ByteArrayOutputStream;
-import java.io.FileOutputStream;
 import java.util.List;
 import org.jruby.ext.crypto.asn1.resources.Resources;
 import org.junit.Test;
