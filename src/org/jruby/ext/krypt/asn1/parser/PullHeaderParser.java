@@ -25,19 +25,19 @@
 * the provisions above, a recipient may use your version of this file under
 * the terms of any one of the CPL, the GPL or the LGPL.
  */
-package org.jruby.ext.crypto.asn1.parser;
+package org.jruby.ext.krypt.asn1.parser;
 
-import org.jruby.ext.crypto.asn1.Encodable;
+import org.jruby.ext.krypt.asn1.Encodable;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import org.jruby.ext.crypto.asn1.Header;
-import org.jruby.ext.crypto.asn1.ParseException;
-import org.jruby.ext.crypto.asn1.Parser;
-import org.jruby.ext.crypto.asn1.ParsedHeader;
-import org.jruby.ext.crypto.asn1.TagClass;
+import org.jruby.ext.krypt.asn1.Header;
+import org.jruby.ext.krypt.asn1.ParseException;
+import org.jruby.ext.krypt.asn1.Parser;
+import org.jruby.ext.krypt.asn1.ParsedHeader;
+import org.jruby.ext.krypt.asn1.TagClass;
 
 
 /**

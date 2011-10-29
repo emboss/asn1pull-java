@@ -25,7 +25,7 @@
 * the provisions above, a recipient may use your version of this file under
 * the terms of any one of the CPL, the GPL or the LGPL.
  */
-package org.jruby.ext.crypto.asn1;
+package org.jruby.ext.krypt.asn1;
 
 import java.io.InputStream;
 import java.io.OutputStream;

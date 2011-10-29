@@ -25,60 +25,40 @@
 * the provisions above, a recipient may use your version of this file under
 * the terms of any one of the CPL, the GPL or the LGPL.
  */
-package org.jruby.ext.crypto.asn1.parser;
+package org.jruby.ext.krypt.asn1;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import org.jruby.ext.crypto.asn1.SerializationException;
-import org.jruby.ext.crypto.asn1.TagClass;
+import java.util.List;
 
 
 /**
  * 
  * @author <a href="mailto:Martin.Bosslet@googlemail.com">Martin Bosslet</a>
  */
-class Tag {
+public class Constructed implements Asn1 {
     
-    private final int tag;
-    private final TagClass tc;
-    private final boolean isConstructed;
+    private final Header header;
+    private final List<Asn1> contents;
     
-    private final byte[] encoding;
+    protected Constructed(Header header, List<Asn1> contents) {
+	if (header == null) throw new NullPointerException();
+	if (contents == null) throw new NullPointerException();
+	
+        this.header = header;
+        this.contents = contents;
+    }
     
-    Tag(int tag, 
-        TagClass tc, 
-        boolean isConstructed, 
-        byte[] encoding) {
-        if (tc == null) throw new NullPointerException();
+    @Override
+    public List<Asn1> getValue() {
+        return contents;
+    }
 
-        this.tag = tag;
-        this.tc = tc;
-        this.isConstructed = isConstructed;
-        this.encoding = encoding;
+    @Override
+    public Header getHeader() {
+        return header;
     }
-    
-    public int getTag() {
-        return tag;
-    }
-    
-    public TagClass getTagClass() {
-        return tc;
-    }
-    
+
+    @Override
     public boolean isConstructed() {
-        return isConstructed;
-    }
-
-    public int getEncodingLength() {
-        return encoding.length;
-    }
-    
-    public void encodeTo(OutputStream out) {
-        try {
-            out.write(encoding);
-        }
-        catch (IOException ex) {
-            throw new SerializationException(ex);
-        }
+        return true;
     }
 }

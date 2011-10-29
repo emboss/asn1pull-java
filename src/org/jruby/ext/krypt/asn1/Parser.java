@@ -25,17 +25,15 @@
 * the provisions above, a recipient may use your version of this file under
 * the terms of any one of the CPL, the GPL or the LGPL.
  */
-package org.jruby.ext.crypto.asn1;
+package org.jruby.ext.krypt.asn1;
 
 
 /**
  * 
  * @author <a href="mailto:Martin.Bosslet@googlemail.com">Martin Bosslet</a>
  */
-public interface Asn1 {
-   
-    public Header getHeader();
-    public Object getValue();
-    public boolean isConstructed();
-
+public interface Parser {
+    
+    public ParsedHeader next();
+    
 }

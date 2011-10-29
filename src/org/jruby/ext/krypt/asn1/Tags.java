@@ -25,15 +25,41 @@
 * the provisions above, a recipient may use your version of this file under
 * the terms of any one of the CPL, the GPL or the LGPL.
  */
-package org.jruby.ext.crypto.asn1;
+package org.jruby.ext.krypt.asn1;
 
 
 /**
  * 
  * @author <a href="mailto:Martin.Bosslet@googlemail.com">Martin Bosslet</a>
  */
-public interface Parser {
+public class Tags {
     
-    public ParsedHeader next();
+    public static final byte END_OF_CONTENTS   = (byte)0x00;
+    public static final byte BOOLEAN           = (byte)0x01;
+    public static final byte INTEGER           = (byte)0x02;
+    public static final byte BIT_STRING        = (byte)0x03;
+    public static final byte OCTET_STRING      = (byte)0x04;
+    public static final byte NULL              = (byte)0x05;
+    public static final byte OBJECT_IDENTIFIER = (byte)0x06;
     
+    public static final byte ENUMERATED        = (byte)0xa0;
+    
+    public static final byte UTF8_STRING       = (byte)0xc0;
+    
+    public static final byte SEQUENCE          = (byte)0x10;
+    public static final byte SET               = (byte)0x11;
+    public static final byte NUMERIC_STRING    = (byte)0x12;
+    public static final byte PRINTABLE_STRING  = (byte)0x13;
+    public static final byte T61_STRING        = (byte)0x14;
+    public static final byte VIDEOTEX_STRING   = (byte)0x15;
+    public static final byte IA5_STRING        = (byte)0x16;
+    public static final byte UTC_TIME          = (byte)0x17;
+    public static final byte GENERALIZED_TIME  = (byte)0x18;
+    public static final byte GRAPHIC_STRING    = (byte)0x19;
+    public static final byte ISO64_STRING      = (byte)0x1a;
+    public static final byte GENERAL_STRING    = (byte)0x1b;
+    public static final byte UNIVERSAL_STRING  = (byte)0x1c;
+    
+    public static final byte BMP_STRING        = (byte)0x1e;
+
 }

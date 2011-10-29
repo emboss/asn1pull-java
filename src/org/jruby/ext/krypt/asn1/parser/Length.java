@@ -25,20 +25,48 @@
 * the provisions above, a recipient may use your version of this file under
 * the terms of any one of the CPL, the GPL or the LGPL.
  */
-package org.jruby.ext.crypto.asn1;
+package org.jruby.ext.krypt.asn1.parser;
 
-import java.io.InputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import org.jruby.ext.krypt.asn1.SerializationException;
 
 
 /**
  * 
  * @author <a href="mailto:Martin.Bosslet@googlemail.com">Martin Bosslet</a>
  */
-public interface ParsedHeader extends Header {
+class Length {
     
-    public void skipValue();
-    public byte[] getValue();
-    public InputStream getValueStream();
-    public Encodable getEncodable();
+    private final long length;
+    private final byte[] encoding;
+    private final boolean isInfiniteLength;
+    
+    public Length(long length, boolean isInfiniteLength, byte[] encoding) {
+        this.length = length;
+        this.isInfiniteLength = isInfiniteLength;
+        this.encoding = encoding;
+    }
+    
+    public long getLength() {
+        return length;
+    }
+    
+    public boolean isInfiniteLength() {
+        return isInfiniteLength;
+    }
+
+    public int getEncodingLength() {
+        return encoding.length;
+    }
+    
+    public void encodeTo(OutputStream out) {
+        try {
+            out.write(encoding);
+        }
+        catch (IOException ex) {
+            throw new SerializationException(ex);
+        }
+    }
     
 }

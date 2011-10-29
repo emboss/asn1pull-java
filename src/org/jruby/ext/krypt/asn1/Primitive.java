@@ -25,40 +25,38 @@
 * the provisions above, a recipient may use your version of this file under
 * the terms of any one of the CPL, the GPL or the LGPL.
  */
-package org.jruby.ext.crypto.asn1;
-
-import java.util.List;
+package org.jruby.ext.krypt.asn1;
 
 
 /**
  * 
  * @author <a href="mailto:Martin.Bosslet@googlemail.com">Martin Bosslet</a>
  */
-public class Constructed implements Asn1 {
+public class Primitive implements Asn1 {
+    private Header header;
+    private byte[] value;
     
-    private final Header header;
-    private final List<Asn1> contents;
-    
-    protected Constructed(Header header, List<Asn1> contents) {
-	if (header == null) throw new NullPointerException();
-	if (contents == null) throw new NullPointerException();
-	
-        this.header = header;
-        this.contents = contents;
-    }
-    
-    @Override
-    public List<Asn1> getValue() {
-        return contents;
-    }
+    public Primitive(Header header, byte[] value) {
+        if (header == null) throw new NullPointerException();
+        if (value == null) throw new NullPointerException();
 
+        this.header = header;
+        this.value = value;
+    }
+    
     @Override
     public Header getHeader() {
         return header;
     }
+    
+    @Override
+    public byte[] getValue() {
+        return value;
+    }
 
     @Override
     public boolean isConstructed() {
-        return true;
+        return false;
     }
+
 }

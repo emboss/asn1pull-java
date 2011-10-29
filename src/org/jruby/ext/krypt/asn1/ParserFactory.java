@@ -25,24 +25,19 @@
 * the provisions above, a recipient may use your version of this file under
 * the terms of any one of the CPL, the GPL or the LGPL.
  */
-package org.jruby.ext.crypto.asn1;
+package org.jruby.ext.krypt.asn1;
+
+import java.io.InputStream;
+import org.jruby.ext.krypt.asn1.parser.PullHeaderParser;
 
 
 /**
  * 
  * @author <a href="mailto:Martin.Bosslet@googlemail.com">Martin Bosslet</a>
  */
-public interface Header extends Encodable {
-
-    public static final byte CONSTRUCTED_MASK     = (byte)0x20;
-    public static final byte COMPLEX_TAG_MASK     = (byte)0x1f;
-    public static final byte INFINITE_LENGTH_MASK = (byte)0x80;
-    
-    public int getTag();
-    public TagClass getTagClass();
-    public boolean isConstructed();
-    public boolean isInfiniteLength();
-    public long getLength();
-    public int getHeaderLength();
-    
+public class ParserFactory {
+   
+    public Parser newHeaderParser(InputStream in) {
+        return new PullHeaderParser(in);
+    }
 }

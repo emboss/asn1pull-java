@@ -25,41 +25,17 @@
 * the provisions above, a recipient may use your version of this file under
 * the terms of any one of the CPL, the GPL or the LGPL.
  */
-package org.jruby.ext.crypto.asn1;
+package org.jruby.ext.krypt.asn1;
 
-import java.io.ByteArrayOutputStream;
-import java.util.List;
-import org.jruby.ext.crypto.asn1.resources.Resources;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import java.io.OutputStream;
+
 
 /**
- * 
+ *
  * @author <a href="mailto:Martin.Bosslet@googlemail.com">Martin Bosslet</a>
  */
-public class Asn1ParserTest {
-    
-    @Test
-    public void parseConstructed() {
-        System.out.println(Long.SIZE);
-        Asn1Parser p = new Asn1Parser(new ParserFactory());
-        Asn1 asn = p.parse(Resources.certificate());
-        assertNotNull(asn);
-        assertTrue(asn instanceof Constructed);
-        Constructed cons = (Constructed)asn;
-        List<Asn1> contents = cons.getValue();
-        assertNotNull(contents);
-        assertTrue(contents.size() > 0);
-    }
-    
-    @Test
-    public void parseEncodeEquality() throws Exception {
-        Asn1Parser p = new Asn1Parser(new ParserFactory());
-        Asn1 asn = p.parse(Resources.certificate());
-        byte[] raw = Resources.read(Resources.certificate());
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        Asn1Serializer.serialize(asn, baos);
-	assertArrayEquals(raw, baos.toByteArray());
-    }
+public interface Encodable {
+
+        public void encodeTo(OutputStream out);
 
 }

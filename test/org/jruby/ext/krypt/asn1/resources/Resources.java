@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.jruby.ext.crypto.asn1.resources;
+package org.jruby.ext.krypt.asn1.resources;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

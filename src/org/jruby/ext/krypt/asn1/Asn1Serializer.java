@@ -25,28 +25,42 @@
 * the provisions above, a recipient may use your version of this file under
 * the terms of any one of the CPL, the GPL or the LGPL.
  */
-package org.jruby.ext.crypto.asn1;
+package org.jruby.ext.krypt.asn1;
+
+import java.io.IOException;
+import java.io.OutputStream;
 
 
 /**
  * 
  * @author <a href="mailto:Martin.Bosslet@googlemail.com">Martin Bosslet</a>
  */
-public class ParseException extends RuntimeException {
-
-    public ParseException(Throwable cause) {
-        super(cause);
+public class Asn1Serializer {
+    
+    private Asn1Serializer() {}
+    
+    public static void serialize(Asn1 asn, OutputStream out) {
+        if (asn.isConstructed()) 
+            serializeConstructed((Constructed)asn, out);
+        else 
+            serializePrimitive((Primitive)asn, out);
     }
-
-    public ParseException(String message, Throwable cause) {
-        super(message, cause);
+    
+    private static void serializeConstructed(Constructed c, OutputStream out) {
+        c.getHeader().encodeTo(out);
+        for (Asn1 asn : c.getValue()) {
+            serialize(asn, out);
+        }
     }
-
-    public ParseException(String message) {
-        super(message);
+    
+    private static void serializePrimitive(Primitive p, OutputStream out) {
+        try {
+            p.getHeader().encodeTo(out);
+            out.write(p.getValue());
+        }
+        catch (IOException ex) {
+            throw new SerializationException(ex);
+        }
     }
-
-    public ParseException() {
-    }
-
+    
 }

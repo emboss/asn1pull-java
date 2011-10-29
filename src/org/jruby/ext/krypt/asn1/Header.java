@@ -25,42 +25,24 @@
 * the provisions above, a recipient may use your version of this file under
 * the terms of any one of the CPL, the GPL or the LGPL.
  */
-package org.jruby.ext.crypto.asn1;
-
-import java.io.IOException;
-import java.io.OutputStream;
+package org.jruby.ext.krypt.asn1;
 
 
 /**
  * 
  * @author <a href="mailto:Martin.Bosslet@googlemail.com">Martin Bosslet</a>
  */
-public class Asn1Serializer {
+public interface Header extends Encodable {
+
+    public static final byte CONSTRUCTED_MASK     = (byte)0x20;
+    public static final byte COMPLEX_TAG_MASK     = (byte)0x1f;
+    public static final byte INFINITE_LENGTH_MASK = (byte)0x80;
     
-    private Asn1Serializer() {}
-    
-    public static void serialize(Asn1 asn, OutputStream out) {
-        if (asn.isConstructed()) 
-            serializeConstructed((Constructed)asn, out);
-        else 
-            serializePrimitive((Primitive)asn, out);
-    }
-    
-    private static void serializeConstructed(Constructed c, OutputStream out) {
-        c.getHeader().encodeTo(out);
-        for (Asn1 asn : c.getValue()) {
-            serialize(asn, out);
-        }
-    }
-    
-    private static void serializePrimitive(Primitive p, OutputStream out) {
-        try {
-            p.getHeader().encodeTo(out);
-            out.write(p.getValue());
-        }
-        catch (IOException ex) {
-            throw new SerializationException(ex);
-        }
-    }
+    public int getTag();
+    public TagClass getTagClass();
+    public boolean isConstructed();
+    public boolean isInfiniteLength();
+    public long getLength();
+    public int getHeaderLength();
     
 }

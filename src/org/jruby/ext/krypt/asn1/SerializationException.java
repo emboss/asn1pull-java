@@ -25,38 +25,28 @@
 * the provisions above, a recipient may use your version of this file under
 * the terms of any one of the CPL, the GPL or the LGPL.
  */
-package org.jruby.ext.crypto.asn1;
+package org.jruby.ext.krypt.asn1;
 
 
 /**
  * 
  * @author <a href="mailto:Martin.Bosslet@googlemail.com">Martin Bosslet</a>
  */
-public class Primitive implements Asn1 {
-    private Header header;
-    private byte[] value;
-    
-    public Primitive(Header header, byte[] value) {
-        if (header == null) throw new NullPointerException();
-        if (value == null) throw new NullPointerException();
+public class SerializationException extends RuntimeException {
 
-        this.header = header;
-        this.value = value;
-    }
-    
-    @Override
-    public Header getHeader() {
-        return header;
-    }
-    
-    @Override
-    public byte[] getValue() {
-        return value;
+    public SerializationException(Throwable cause) {
+        super(cause);
     }
 
-    @Override
-    public boolean isConstructed() {
-        return false;
+    public SerializationException(String message, Throwable cause) {
+        super(message, cause);
     }
 
+    public SerializationException(String message) {
+        super(message);
+    }
+
+    public SerializationException() {
+    }
+    
 }
