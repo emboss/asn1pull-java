@@ -27,11 +27,8 @@
  */
 package org.jruby.ext.krypt.asn1;
 
-import org.jruby.ext.krypt.asn1.Asn1Serializer;
-import org.jruby.ext.krypt.asn1.ParserFactory;
-import org.jruby.ext.krypt.asn1.Asn1Parser;
-import org.jruby.ext.krypt.asn1.Constructed;
-import org.jruby.ext.krypt.asn1.Asn1;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.List;
 import org.jruby.ext.krypt.asn1.resources.Resources;
@@ -45,26 +42,39 @@ import static org.junit.Assert.*;
 public class Asn1ParserTest {
     
     @Test
-    public void parseConstructed() {
-        System.out.println(Long.SIZE);
+    public void parseConstructed() throws Exception {
         Asn1Parser p = new Asn1Parser(new ParserFactory());
-        Asn1 asn = p.parse(Resources.certificate());
-        assertNotNull(asn);
-        assertTrue(asn instanceof Constructed);
-        Constructed cons = (Constructed)asn;
-        List<Asn1> contents = cons.getValue();
-        assertNotNull(contents);
-        assertTrue(contents.size() > 0);
+        InputStream in = Resources.certificate();
+
+        try {
+            Asn1 asn = p.parse(in);
+            assertNotNull(asn);
+            assertTrue(asn instanceof Constructed);
+            Constructed cons = (Constructed)asn;
+            List<Asn1> contents = cons.getValue();
+            assertNotNull(contents);
+            assertTrue(contents.size() > 0);
+        }
+        finally {
+            in.close();
+        }
     }
     
     @Test
     public void parseEncodeEquality() throws Exception {
         Asn1Parser p = new Asn1Parser(new ParserFactory());
-        Asn1 asn = p.parse(Resources.certificate());
-        byte[] raw = Resources.read(Resources.certificate());
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        Asn1Serializer.serialize(asn, baos);
-	assertArrayEquals(raw, baos.toByteArray());
+        InputStream in = Resources.certificate();
+
+        try {
+            byte[] raw = Resources.read(Resources.certificate());
+            Asn1 asn = p.parse(new ByteArrayInputStream(raw));
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            Asn1Serializer.serialize(asn, baos);
+            assertArrayEquals(raw, baos.toByteArray());
+        }
+        finally {
+            in.close();
+        }
     }
 
 }

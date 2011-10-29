@@ -86,7 +86,7 @@ public class HeaderParserTest {
         int numTokens = 0;
 
         try {
-            Parser p = new ParserFactory().newHeaderParser(Resources.certificate());
+            Parser p = new ParserFactory().newHeaderParser(in);
             while ((token = p.next()) != null) {
                 numTokens++;
                 consumeTokenStream(token); //need to consume the value bytes
@@ -105,7 +105,7 @@ public class HeaderParserTest {
         int numTokens = 0;
 
         try {
-            Parser p = new ParserFactory().newHeaderParser(Resources.certificate());
+            Parser p = new ParserFactory().newHeaderParser(in);
             while ((token = p.next()) != null) {
                 numTokens++;
                 if (token.isConstructed())
@@ -138,7 +138,7 @@ public class HeaderParserTest {
         ParsedHeader token;
 
         try {
-            Parser p = new ParserFactory().newHeaderParser(Resources.certificate());
+            Parser p = new ParserFactory().newHeaderParser(in);
             while ((token = p.next()) != null) {
                 numTokens++;
                 token.getLength();
