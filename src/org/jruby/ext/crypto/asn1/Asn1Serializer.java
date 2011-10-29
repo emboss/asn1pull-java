@@ -40,12 +40,10 @@ public class Asn1Serializer {
     private Asn1Serializer() {}
     
     public static void serialize(Asn1 asn, OutputStream out) {
-        if (asn.isConstructed()) {
+        if (asn.isConstructed()) 
             serializeConstructed((Constructed)asn, out);
-        } 
-        else {
+        else 
             serializePrimitive((Primitive)asn, out);
-        }   
     }
     
     private static void serializeConstructed(Constructed c, OutputStream out) {

@@ -49,6 +49,8 @@ class Tag {
         TagClass tc, 
         boolean isConstructed, 
         byte[] encoding) {
+        if (tc == null) throw new NullPointerException();
+
         this.tag = tag;
         this.tc = tc;
         this.isConstructed = isConstructed;

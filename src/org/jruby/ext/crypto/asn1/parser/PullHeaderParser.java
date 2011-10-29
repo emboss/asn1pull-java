@@ -51,6 +51,7 @@ public class PullHeaderParser implements Parser {
     private final InputStream in;
 
     public PullHeaderParser(InputStream in) {
+        if (in == null) throw new NullPointerException();
         this.in = in;
     }
     

@@ -1,0 +1,1 @@
+* If content is of length 0, use null instead of an empty byte array.

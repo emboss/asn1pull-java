@@ -73,7 +73,6 @@ public class Asn1Parser {
             return parseInfiniteConstructed(hp, h);
 	else
 	    return parseDefiniteConstructed(hp, h);
-        
     }
 
     private Constructed parseDefiniteConstructed(Parser hp, ParsedHeader h) {
@@ -91,6 +90,7 @@ public class Asn1Parser {
                                          "constructed value do not add up to total value");
             contents.add(parse(hp, nested));
         }
+
         return new Constructed(new HeaderImpl(h, h.getEncodable()), contents);
     }
 
