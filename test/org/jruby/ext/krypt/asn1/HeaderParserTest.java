@@ -27,9 +27,6 @@
  */
 package org.jruby.ext.krypt.asn1;
 
-import org.jruby.ext.krypt.asn1.ParserFactory;
-import org.jruby.ext.krypt.asn1.Parser;
-import org.jruby.ext.krypt.asn1.ParsedHeader;
 import org.jruby.ext.krypt.asn1.resources.Resources;
 import java.io.IOException;
 import java.io.InputStream;
@@ -43,43 +40,88 @@ import static org.junit.Assert.*;
 public class HeaderParserTest {
     
     @Test
-    public void parseTokensSkipping() {
+    public void parseTokensSkippingTopLevel() throws Exception {
+        InputStream in = Resources.certificate();
+        ParsedHeader token;
         int numTokens = 0;
-        ParsedHeader h;
-        Parser p = new ParserFactory().newHeaderParser(Resources.certificate());
-        while ((h = p.next()) != null) {
-            numTokens++;
-            h.skipValue();
+
+        try {
+            Parser p = new ParserFactory().newHeaderParser(in);
+            while ((token = p.next()) != null) {
+                numTokens++;
+                token.skipValue();
+            }
+            assertEquals(1, numTokens);
         }
-        assertTrue(numTokens > 0);
+        finally {
+            in.close();
+        }
+    }
+
+    @Test
+    public void parseTokensSkipping() throws Exception {
+        InputStream in = Resources.certificate();
+        ParsedHeader token;
+        int numTokens = 0;
+
+        try {
+            Parser p = new ParserFactory().newHeaderParser(in);
+            while ((token = p.next()) != null) {
+                numTokens++;
+                if (token.isConstructed())
+                    continue;
+                token.skipValue();
+            }
+            assertTrue(numTokens > 1);
+        }
+        finally {
+            in.close();
+        }
     }
     
     @Test
-    public void getValueMovesCursorForward() {
-        int numTokens = 0;
+    public void consumeTopLevelStream() throws Exception {
+        InputStream in = Resources.certificate();
         ParsedHeader token;
-        Parser p = new ParserFactory().newHeaderParser(Resources.certificate());
-        while ((token = p.next()) != null) {
-            numTokens++;
-            token.getValue(); //need to consume the value bytes
+        int numTokens = 0;
+
+        try {
+            Parser p = new ParserFactory().newHeaderParser(Resources.certificate());
+            while ((token = p.next()) != null) {
+                numTokens++;
+                consumeTokenStream(token); //need to consume the value bytes
+            }
+            assertEquals(1, numTokens);
         }
-        assertTrue(numTokens > 0);
+        finally {
+            in.close();
+        }
     }
-    
+
     @Test
-    public void consumeStreams() {
-        int numTokens = 0;
+    public void consumeAllStreams() throws Exception {
+        InputStream in = Resources.certificate();
         ParsedHeader token;
-        Parser p = new ParserFactory().newHeaderParser(Resources.certificate());
-        while ((token = p.next()) != null) {
-            numTokens++;
-            consumeTokenStream(token); //need to consume the value bytes
+        int numTokens = 0;
+
+        try {
+            Parser p = new ParserFactory().newHeaderParser(Resources.certificate());
+            while ((token = p.next()) != null) {
+                numTokens++;
+                if (token.isConstructed())
+                    continue;
+                consumeTokenStream(token); //need to consume the value bytes
+            }
+            assertTrue(numTokens > 1);
         }
-        assertTrue(numTokens > 0);
+        finally {
+            in.close();
+        }
     }
     
     private static void consumeTokenStream(ParsedHeader token) {
         InputStream in = token.getValueStream();
+
         try {
             byte[] buf = new byte[8192];
             while (in.read(buf) != -1) {}
@@ -98,18 +140,27 @@ public class HeaderParserTest {
     }
     
     @Test
-    public void parseTokensAndTestMethods() {
+    public void parseTokensAndTestMethods() throws Exception {
+        InputStream in = Resources.certificate();
         int numTokens = 0;
         ParsedHeader token;
-        Parser p = new ParserFactory().newHeaderParser(Resources.certificate());
-        while ((token = p.next()) != null) {
-            numTokens++;
-            assertTrue(token.getLength() != 0);
-            assertNotNull(token.getTagClass());
-            token.getTag();
-            token.isConstructed();
-            token.isInfiniteLength();
-            assertNotNull(token.getValue());
+
+        try {
+            Parser p = new ParserFactory().newHeaderParser(Resources.certificate());
+            while ((token = p.next()) != null) {
+                numTokens++;
+                token.getLength();
+                assertNotNull(token.getTagClass());
+                token.getTag();
+                token.isInfiniteLength();
+                if (token.isConstructed())
+                    continue;
+                //consumes primitive value
+                assertNotNull(token.getValue());
+            }
+        }
+        finally {
+            in.close();
         }
     }
 }

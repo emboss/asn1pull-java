@@ -1,4 +1,7 @@
 === 0.1.0 / 2011-10-29 [emboss]
+* Improved tests.
+
+=== 0.1.0 / 2011-10-29 [emboss]
 * Minor improvements.
 
 === 0.1.0 / 2011-10-29 [emboss]
