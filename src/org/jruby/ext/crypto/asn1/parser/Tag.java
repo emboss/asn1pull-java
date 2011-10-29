@@ -63,6 +63,10 @@ class Tag {
     public boolean isConstructed() {
         return isConstructed;
     }
+
+    public int getEncodingLength() {
+        return encoding.length;
+    }
     
     public byte[] encode() {
         return encoding;

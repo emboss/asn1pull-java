@@ -39,6 +39,7 @@ public class Primitive implements Asn1 {
     public Primitive(Header header, byte[] value) {
         if (header == null) throw new NullPointerException();
         if (value == null) throw new NullPointerException();
+
         this.header = header;
         this.value = value;
     }

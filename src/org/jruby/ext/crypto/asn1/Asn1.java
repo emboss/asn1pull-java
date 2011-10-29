@@ -37,5 +37,5 @@ public interface Asn1 {
     public Header getHeader();
     public Object getValue();
     public boolean isConstructed();
-    
+
 }

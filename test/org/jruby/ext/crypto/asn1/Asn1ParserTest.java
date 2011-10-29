@@ -28,6 +28,7 @@
 package org.jruby.ext.crypto.asn1;
 
 import java.io.ByteArrayOutputStream;
+import java.io.FileOutputStream;
 import java.util.List;
 import org.jruby.ext.crypto.asn1.resources.Resources;
 import org.junit.Test;
@@ -52,13 +53,13 @@ public class Asn1ParserTest {
     }
     
     @Test
-    public void parseEncodeEquality() {
+    public void parseEncodeEquality() throws Exception {
         Asn1Parser p = new Asn1Parser(new ParserFactory());
         Asn1 asn = p.parse(Resources.certificate());
         byte[] raw = Resources.read(Resources.certificate());
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         Asn1Serializer.serialize(asn, baos);
-        assertArrayEquals(raw, baos.toByteArray());
+	assertArrayEquals(raw, baos.toByteArray());
     }
 
 }

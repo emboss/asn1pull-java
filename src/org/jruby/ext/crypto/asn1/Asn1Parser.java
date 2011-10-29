@@ -41,10 +41,14 @@ public class Asn1Parser {
     private final ParserFactory parserFactory;
     
     public Asn1Parser(ParserFactory parser) {
+	if (parser == null) throw new NullPointerException();
+	
         this.parserFactory = parser;
     }
     
     public Asn1 parse(InputStream in) {
+	if (in == null) throw new NullPointerException();
+	
         Parser hp = parserFactory.newHeaderParser(in);
         ParsedHeader h = hp.next();
         if (h == null)
@@ -53,8 +57,6 @@ public class Asn1Parser {
     }
     
     private Asn1 parse(Parser hp, ParsedHeader h) {
-        if (h == null) throw new NullPointerException();
-        
         if (h.isConstructed())
             return parseConstructed(hp, h);
         else
@@ -66,18 +68,34 @@ public class Asn1Parser {
     }
     
     private Constructed parseConstructed(Parser hp, ParsedHeader h) {
-        List<Asn1> contents = new ArrayList<Asn1>();
+        if (h.isInfiniteLength())
+            return parseInfiniteConstructed(hp, h);
+	else
+	    return parseDefiniteConstructed(hp, h);
+        
+    }
+
+    private Constructed parseDefiniteConstructed(Parser hp, ParsedHeader h) {
+	List<Asn1> contents = new ArrayList<Asn1>();
+	long len = h.getLength(), curLen = 0;
         ParsedHeader nested;
-        while ((nested = hp.next()) != null) {
+
+        while (curLen != len) {
+	    nested = hp.next();
+            curLen = curLen + nested.getHeaderLength() + nested.getLength();
             contents.add(parse(hp, nested));
         }
         return new Constructed(new HeaderImpl(h), contents);
-        
+    }
+
+    private Constructed parseInfiniteConstructed(Parser hp, ParsedHeader h) {
+	    throw new UnsupportedOperationException();
     }
     
     private static class HeaderImpl implements Header {
 
         private final long length;
+        private final int headerLength;
         private final int tag;
         private final TagClass tc;
         private final boolean isInfinite;
@@ -86,6 +104,7 @@ public class Asn1Parser {
 
         public HeaderImpl(ParsedHeader h) {
             this.length = h.getLength();
+            this.headerLength = h.getHeaderLength();
             this.tag = h.getTag();
             this.tc = h.getTagClass();
             this.isInfinite = h.isInfiniteLength();
@@ -96,6 +115,11 @@ public class Asn1Parser {
         @Override
         public long getLength() {
             return length;
+        }
+
+        @Override
+        public int getHeaderLength() {
+            return headerLength;
         }
 
         @Override

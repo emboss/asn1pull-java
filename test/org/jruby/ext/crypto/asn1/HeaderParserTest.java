@@ -78,7 +78,6 @@ public class HeaderParserTest {
     private static void consumeTokenStream(ParsedHeader token) {
         InputStream in = token.getValueStream();
         try {
-            
             byte[] buf = new byte[8192];
             while (in.read(buf) != -1) {}
         }

@@ -4,6 +4,7 @@ dist
 doc
 tmp
 build.xml
+manifest.mf
 *.class
 *.swp
 

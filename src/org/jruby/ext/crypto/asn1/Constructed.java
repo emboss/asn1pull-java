@@ -40,6 +40,9 @@ public class Constructed implements Asn1 {
     private final List<Asn1> contents;
     
     protected Constructed(Header header, List<Asn1> contents) {
+	if (header == null) throw new NullPointerException();
+	if (contents == null) throw new NullPointerException();
+	
         this.header = header;
         this.contents = contents;
     }

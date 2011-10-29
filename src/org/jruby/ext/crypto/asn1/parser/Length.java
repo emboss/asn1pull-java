@@ -51,6 +51,10 @@ class Length {
     public boolean isInfiniteLength() {
         return isInfiniteLength;
     }
+
+    public int getEncodingLength() {
+        return encoding.length;
+    }
     
     public byte[] encode() {
         return encoding;

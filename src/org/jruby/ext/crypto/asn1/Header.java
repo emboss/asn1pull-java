@@ -43,6 +43,7 @@ public interface Header {
     public boolean isConstructed();
     public boolean isInfiniteLength();
     public long getLength();
+    public int getHeaderLength();
     
     //TODO make this "public void encodeTo(OutputStream out)"
     public byte[] encode();

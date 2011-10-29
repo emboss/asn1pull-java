@@ -60,7 +60,7 @@ public class PullHeaderParser implements Parser {
         byte b = (byte)read;
         //TODO: Implement this properly
         final Tag tag = parseTag(b);
-        final Length length = parseLength(b);
+	final Length length = parseLength();
         return new ParsedHeader() {
 
             @Override
@@ -102,6 +102,13 @@ public class PullHeaderParser implements Parser {
             public long getLength() {
                 return length.getLength();
             }
+
+            @Override
+            public int getHeaderLength() {
+                return tag.getEncodingLength() + length.getEncodingLength();
+            }
+
+
 
             @Override
             public byte[] encode() {
@@ -177,7 +184,9 @@ public class PullHeaderParser implements Parser {
         throw new UnsupportedOperationException();
     }
     
-    private Length parseLength(byte b) {
+    private Length parseLength() {
+	byte b = nextByte();
+	
         if (b == Header.INFINITE_LENGTH_MASK)
             return new Length(-1, true, new byte[] { b });
         else if (matchMask(b, Header.INFINITE_LENGTH_MASK))
@@ -200,7 +209,7 @@ public class PullHeaderParser implements Parser {
         for (int i=numOctets; i > 0; i--) {
             b = nextByte();
             len <<= 8;
-            len |= b;
+            len |= (b & 0xff);
             encoding[off++] = b;
         }
         
