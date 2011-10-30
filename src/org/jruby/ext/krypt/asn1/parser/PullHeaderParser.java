@@ -47,6 +47,7 @@ import org.jruby.ext.krypt.asn1.TagClass;
 public class PullHeaderParser implements Parser {
 
     private static final int LONG_BYTE_LEN = Long.SIZE / 8;
+    private static final int INT_BYTE_LEN = Integer.SIZE / 8;
     
     private final InputStream in;
 
@@ -195,7 +196,29 @@ public class PullHeaderParser implements Parser {
     }
     
     private Tag parseComplexTag(byte b) {
-        throw new UnsupportedOperationException();
+        boolean isConstructed = matchMask(b, Header.CONSTRUCTED_MASK);
+        TagClass tc = TagClass.of((byte)(b & TagClass.PRIVATE.getMask()));
+        int tag = 0;
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+        baos.write(b & 0xff);
+        b = nextByte();
+
+        while (matchMask(b, Header.INFINITE_LENGTH_MASK)) {
+            tag <<= 7;
+            tag |= (b & 0x7f);
+            if (tag > (INT_BYTE_LEN >> 7))
+                throw new ParseException("Complex tag too long.");
+            baos.write(b & 0xff);
+            b = nextByte();
+        }
+
+        //final byte
+        tag <<= 7;
+        tag |= (b & 0x7f);
+        baos.write(b & 0xff);
+
+        return new Tag(tag, tc, isConstructed, baos.toByteArray());
     }
     
     private Length parseLength() {
