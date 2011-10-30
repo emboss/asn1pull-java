@@ -27,6 +27,8 @@
  */
 package org.jruby.ext.krypt.asn1;
 
+import java.io.InputStream;
+
 
 /**
  * 
@@ -34,6 +36,6 @@ package org.jruby.ext.krypt.asn1;
  */
 public interface Parser {
     
-    public ParsedHeader next();
+    public ParsedHeader next(InputStream in);
     
 }

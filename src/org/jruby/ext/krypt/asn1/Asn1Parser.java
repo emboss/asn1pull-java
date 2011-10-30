@@ -50,16 +50,16 @@ public class Asn1Parser {
     public Asn1 parse(InputStream in) {
 	if (in == null) throw new NullPointerException();
 	
-        Parser hp = parserFactory.newHeaderParser(in);
-        ParsedHeader h = hp.next();
+        Parser hp = parserFactory.newHeaderParser();
+        ParsedHeader h = hp.next(in);
         if (h == null)
             return null;
-        return parse(hp, h);
+        return parse(hp, h, in);
     }
     
-    private Asn1 parse(Parser hp, ParsedHeader h) {
+    private Asn1 parse(Parser hp, ParsedHeader h, InputStream in) {
         if (h.isConstructed())
-            return parseConstructed(hp, h);
+            return parseConstructed(hp, h, in);
         else
             return parsePrimitive(h);
     }
@@ -68,40 +68,40 @@ public class Asn1Parser {
         return new Primitive(new HeaderImpl(h, h.getEncodable()), h.getValue());
     }
     
-    private Constructed parseConstructed(Parser hp, ParsedHeader h) {
+    private Constructed parseConstructed(Parser hp, ParsedHeader h, InputStream in) {
         if (h.isInfiniteLength())
-            return parseInfiniteConstructed(hp, h);
+            return parseInfiniteConstructed(hp, h, in);
 	else
-	    return parseDefiniteConstructed(hp, h);
+	    return parseDefiniteConstructed(hp, h, in);
     }
 
-    private Constructed parseDefiniteConstructed(Parser hp, ParsedHeader h) {
+    private Constructed parseDefiniteConstructed(Parser hp, ParsedHeader h, InputStream in) {
 	List<Asn1> contents = new ArrayList<Asn1>();
 	int len = h.getLength(), curLen = 0;
         ParsedHeader nested;
 
         while (curLen != len) {
-	    nested = hp.next();
+	    nested = hp.next(in);
             if (Integer.MAX_VALUE - nested.getHeaderLength() - curLen < nested.getLength())
                 throw new ParseException("Constructed sequence is too long.");
             curLen = curLen + nested.getHeaderLength() + nested.getLength();
             if (curLen > len)
                 throw new ParseException("Malformed encoding. Single lengths of "+
                                          "constructed value do not add up to total value");
-            contents.add(parse(hp, nested));
+            contents.add(parse(hp, nested, in));
         }
 
         return new Constructed(new HeaderImpl(h, h.getEncodable()), contents);
     }
 
-    private Constructed parseInfiniteConstructed(Parser hp, ParsedHeader h) {
+    private Constructed parseInfiniteConstructed(Parser hp, ParsedHeader h, InputStream in) {
         List<Asn1> contents = new ArrayList<Asn1>();
 	boolean parsedEof = false;
         ParsedHeader nested;
 
         while (!parsedEof) {
-	    nested = hp.next();
-            contents.add(parse(hp, nested));
+	    nested = hp.next(in);
+            contents.add(parse(hp, nested, in));
             if (nested.getTag() == Tags.END_OF_CONTENTS) {
                 if (nested.getLength() != 0)
                     throw new ParseException("EOF tag with length > 0 found.");

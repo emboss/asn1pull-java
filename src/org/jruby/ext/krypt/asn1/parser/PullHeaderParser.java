@@ -45,32 +45,29 @@ public class PullHeaderParser implements Parser {
 
     private static final int INT_BYTE_LEN = Integer.SIZE / 8;
     
-    private final InputStream in;
-
-    public PullHeaderParser(InputStream in) {
-        if (in == null) throw new NullPointerException();
-        this.in = in;
-    }
+    public PullHeaderParser() { }
     
     @Override
-    public ParsedHeader next() {
-        int read = nextInt();
+    public ParsedHeader next(InputStream in) {
+        if (in == null) throw new NullPointerException();
+        
+        int read = nextInt(in);
         if (read == -1) 
             return null;
         byte b = (byte)read;
-        Tag tag = parseTag(b);
-	Length length = parseLength();
+        Tag tag = parseTag(b, in);
+	Length length = parseLength(in);
 	return new ParsedHeaderImpl(tag, length, in);
     }
     
-    private byte nextByte() {
-        int read = nextInt();
+    private byte nextByte(InputStream in) {
+        int read = nextInt(in);
         if (read == -1) 
             throw new ParseException("EOF reached.");
         return (byte)read;
     }
     
-    private int nextInt() {
+    private int nextInt(InputStream in) {
         try {
             return in.read();
         }
@@ -83,9 +80,9 @@ public class PullHeaderParser implements Parser {
         return ((byte)(test & mask)) == mask;
     }
     
-    private Tag parseTag(byte b) {
+    private Tag parseTag(byte b, InputStream in) {
         if (matchMask(b, Header.COMPLEX_TAG_MASK))
-            return parseComplexTag(b);
+            return parseComplexTag(b, in);
         else
             return parsePrimitiveTag(b);
     }
@@ -97,14 +94,14 @@ public class PullHeaderParser implements Parser {
         return new Tag(tag, tc, isConstructed, new byte[] { b });
     }
     
-    private Tag parseComplexTag(byte b) {
+    private Tag parseComplexTag(byte b, InputStream in) {
         boolean isConstructed = matchMask(b, Header.CONSTRUCTED_MASK);
         TagClass tc = TagClass.of((byte)(b & TagClass.PRIVATE.getMask()));
         int tag = 0;
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
         baos.write(b & 0xff);
-        b = nextByte();
+        b = nextByte(in);
 
         while (matchMask(b, Header.INFINITE_LENGTH_MASK)) {
             tag <<= 7;
@@ -112,7 +109,7 @@ public class PullHeaderParser implements Parser {
             if (tag > (INT_BYTE_LEN >> 7))
                 throw new ParseException("Complex tag too long.");
             baos.write(b & 0xff);
-            b = nextByte();
+            b = nextByte(in);
         }
 
         //final byte
@@ -123,18 +120,18 @@ public class PullHeaderParser implements Parser {
         return new Tag(tag, tc, isConstructed, baos.toByteArray());
     }
     
-    private Length parseLength() {
-	byte b = nextByte();
+    private Length parseLength(InputStream in) {
+	byte b = nextByte(in);
 	
         if (b == Header.INFINITE_LENGTH_MASK)
             return new Length(-1, true, new byte[] { b });
         else if (matchMask(b, Header.INFINITE_LENGTH_MASK))
-            return parseComplexDefiniteLength(b);
+            return parseComplexDefiniteLength(b, in);
         else
             return new Length(b & 0xff, false, new byte[] { b });
     }
     
-    private Length parseComplexDefiniteLength(byte b) {
+    private Length parseComplexDefiniteLength(byte b, InputStream in) {
         int len = 0;
         int numOctets = b & 0x7f;
         
@@ -146,7 +143,7 @@ public class PullHeaderParser implements Parser {
         int off = 1;
         
         for (int i=numOctets; i > 0; i--) {
-            b = nextByte();
+            b = nextByte(in);
             len <<= 8;
             len |= (b & 0xff);
             encoding[off++] = b;

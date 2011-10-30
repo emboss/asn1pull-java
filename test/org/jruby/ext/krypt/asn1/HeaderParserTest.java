@@ -46,8 +46,8 @@ public class HeaderParserTest {
         int numTokens = 0;
 
         try {
-            Parser p = new ParserFactory().newHeaderParser(in);
-            while ((token = p.next()) != null) {
+            Parser p = new ParserFactory().newHeaderParser();
+            while ((token = p.next(in)) != null) {
                 numTokens++;
                 token.skipValue();
             }
@@ -65,8 +65,8 @@ public class HeaderParserTest {
         int numTokens = 0;
 
         try {
-            Parser p = new ParserFactory().newHeaderParser(in);
-            while ((token = p.next()) != null) {
+            Parser p = new ParserFactory().newHeaderParser();
+            while ((token = p.next(in)) != null) {
                 numTokens++;
                 if (token.isConstructed())
                     continue;
@@ -86,8 +86,8 @@ public class HeaderParserTest {
         int numTokens = 0;
 
         try {
-            Parser p = new ParserFactory().newHeaderParser(in);
-            while ((token = p.next()) != null) {
+            Parser p = new ParserFactory().newHeaderParser();
+            while ((token = p.next(in)) != null) {
                 numTokens++;
                 consumeTokenStream(token); //need to consume the value bytes
             }
@@ -105,8 +105,8 @@ public class HeaderParserTest {
         int numTokens = 0;
 
         try {
-            Parser p = new ParserFactory().newHeaderParser(in);
-            while ((token = p.next()) != null) {
+            Parser p = new ParserFactory().newHeaderParser();
+            while ((token = p.next(in)) != null) {
                 numTokens++;
                 if (token.isConstructed())
                     continue;
@@ -138,8 +138,8 @@ public class HeaderParserTest {
         ParsedHeader token;
 
         try {
-            Parser p = new ParserFactory().newHeaderParser(in);
-            while ((token = p.next()) != null) {
+            Parser p = new ParserFactory().newHeaderParser();
+            while ((token = p.next(in)) != null) {
                 numTokens++;
                 token.getLength();
                 assertNotNull(token.getTagClass());

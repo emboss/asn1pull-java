@@ -71,36 +71,32 @@ class ParsedHeaderImpl implements ParsedHeader {
 	//TODO: Make this work for OCTET_STRING etc.
 	if (length.isInfiniteLength())
 	    throw new IllegalStateException("Not supported when current header is infinite length.");
-	return readBytes(length.getLength());
+	else
+            return consume(getValueStream());
     }
 
     //TODO: Implement this properly
     @Override
     public InputStream getValueStream() {
-	//TODO: Make this work for OCTET_STRING etc.
 	if (length.isInfiniteLength())
 	    throw new IllegalStateException("Not supported when current header is infinite length.");
-	return new ByteArrayInputStream(readBytes(length.getLength()));
+	else
+            return new DefiniteInputStream(in, length.getLength());
     }
 
-    private byte[] readBytes(int length) {
+    private byte[] consume(InputStream stream) {
         
         byte[] buf = new byte[8192];
         int read = 0;
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        int total = 0;
         
-        while (total != length) {
-            try {
-                read = in.read(buf, 0, length - total);
-                if (read == -1)
-                    throw new ParseException("EOF reached while parsing value");
-                total += read;
+        try {
+            while ((read = stream.read(buf)) != -1) {
                 baos.write(buf, 0, read);
             }
-            catch (IOException ex) {
+        }
+        catch (IOException ex) {
                 throw new ParseException(ex);
-            }
         }
         
         return baos.toByteArray();

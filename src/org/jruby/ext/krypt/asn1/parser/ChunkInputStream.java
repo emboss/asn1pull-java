@@ -25,18 +25,36 @@
 * the provisions above, a recipient may use your version of this file under
 * the terms of any one of the CPL, the GPL or the LGPL.
  */
-package org.jruby.ext.krypt.asn1;
+package org.jruby.ext.krypt.asn1.parser;
 
-import org.jruby.ext.krypt.asn1.parser.PullHeaderParser;
+import java.io.FilterInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 
 /**
  * 
  * @author <a href="mailto:Martin.Bosslet@googlemail.com">Martin Bosslet</a>
  */
-public class ParserFactory {
-   
-    public Parser newHeaderParser() {
-        return new PullHeaderParser();
+class ChunkInputStream extends FilterInputStream {
+
+    public ChunkInputStream(InputStream in) {
+        super(in);
     }
+
+    @Override
+    public int read() throws IOException {
+        return super.read();
+    }
+
+    @Override
+    public int read(byte[] b, int off, int len) throws IOException {
+        return super.read(b, off, len);
+    }
+
+    @Override
+    public void close() throws IOException {
+        //do nothing
+    }
+    
 }
