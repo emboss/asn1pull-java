@@ -62,79 +62,9 @@ public class PullHeaderParser implements Parser {
         if (read == -1) 
             return null;
         byte b = (byte)read;
-        //TODO: Implement this properly
-        final Tag tag = parseTag(b);
-	final Length length = parseLength();
-        final Encodable enc = new Encodable() {
-            public void encodeTo(OutputStream out) {
-                tag.encodeTo(out);
-                length.encodeTo(out);
-            }
-        };
-
-        return new ParsedHeader() {
-
-            @Override
-            public void skipValue() {
-                getValue();
-            }
-
-            @Override
-            public byte[] getValue() {
-                //TODO: Make this work for OCTET_STRING etc.
-                if (length.isInfiniteLength())
-                    throw new IllegalStateException("Not supported when current header is infinite length.");
-                return readBytes(length.getLength());
-            }
-
-            @Override
-            public InputStream getValueStream() {
-                //TODO: Make this work for OCTET_STRING etc.
-                if (length.isInfiniteLength())
-                    throw new IllegalStateException("Not supported when current header is infinite length.");
-                return new ByteArrayInputStream(readBytes(length.getLength()));
-            }
-
-            @Override
-            public int getTag() {
-                return tag.getTag();
-            }
-
-            @Override
-            public TagClass getTagClass() {
-                return tag.getTagClass();
-            }
-
-            @Override
-            public boolean isConstructed() {
-                return tag.isConstructed();
-            }
-
-            @Override
-            public boolean isInfiniteLength() {
-                return length.isInfiniteLength();
-            }
-
-            @Override
-            public long getLength() {
-                return length.getLength();
-            }
-
-            @Override
-            public int getHeaderLength() {
-                return tag.getEncodingLength() + length.getEncodingLength();
-            }
-
-            @Override
-            public void encodeTo(OutputStream out) {
-                enc.encodeTo(out);
-            }
-
-            public Encodable getEncodable() {
-                return enc;
-            }
-            
-        };
+        Tag tag = parseTag(b);
+	Length length = parseLength();
+	return new ParsedHeaderImpl(tag, length, in);
     }
     
     private byte nextByte() {
@@ -155,30 +85,6 @@ public class PullHeaderParser implements Parser {
     
     private static boolean matchMask(byte test, byte mask) {
         return ((byte)(test & mask)) == mask;
-    }
-    
-    private byte[] readBytes(long length) {
-        
-        byte[] buf = new byte[8192];
-        int read = 0;
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        long total = 0;
-        
-        while (total != length) {
-            try {
-                //TODO: Hack - treat long correctly
-                read = in.read(buf, 0, (int)(length - total));
-                if (read == -1)
-                    throw new ParseException("EOF reached while parsing value");
-                total += read;
-                baos.write(buf, 0, read);
-            }
-            catch (IOException ex) {
-                throw new ParseException(ex);
-            }
-        }
-        
-        return baos.toByteArray();
     }
     
     private Tag parseTag(byte b) {

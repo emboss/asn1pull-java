@@ -5,6 +5,8 @@ doc
 tmp
 build.xml
 manifest.mf
+.classpath
+.project
 *.class
 *.swp
 
