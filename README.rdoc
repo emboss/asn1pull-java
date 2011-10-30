@@ -1,6 +1,6 @@
 == asn1pull-java
 
-Features an ASN.1 pull parser with full streaming support. 
+Features an ASN.1 pull parser with streaming support. 
 
 == Requirements
 
