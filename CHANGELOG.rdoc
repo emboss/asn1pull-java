@@ -1,4 +1,8 @@
 === 0.1.0 / 2011-10-30 [emboss]
+* Restrict maximum length of a definite value to Integer.MAX_VALUE, since
+the size of a byte array is also bounded by this.
+
+=== 0.1.0 / 2011-10-30 [emboss]
 * Added support for complex tags.
 
 === 0.1.0 / 2011-10-29 [emboss]

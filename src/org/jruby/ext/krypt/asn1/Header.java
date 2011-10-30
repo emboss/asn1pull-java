@@ -42,7 +42,7 @@ public interface Header extends Encodable {
     public TagClass getTagClass();
     public boolean isConstructed();
     public boolean isInfiniteLength();
-    public long getLength();
+    public int getLength();
     public int getHeaderLength();
     
 }

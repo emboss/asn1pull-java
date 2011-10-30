@@ -83,17 +83,16 @@ class ParsedHeaderImpl implements ParsedHeader {
 	return new ByteArrayInputStream(readBytes(length.getLength()));
     }
 
-    private byte[] readBytes(long length) {
+    private byte[] readBytes(int length) {
         
         byte[] buf = new byte[8192];
         int read = 0;
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        long total = 0;
+        int total = 0;
         
         while (total != length) {
             try {
-                //TODO: Hack - treat long correctly
-                read = in.read(buf, 0, (int)(length - total));
+                read = in.read(buf, 0, length - total);
                 if (read == -1)
                     throw new ParseException("EOF reached while parsing value");
                 total += read;
@@ -133,7 +132,7 @@ class ParsedHeaderImpl implements ParsedHeader {
     }
 
     @Override
-    public long getLength() {
+    public int getLength() {
 	return length.getLength();
     }
 

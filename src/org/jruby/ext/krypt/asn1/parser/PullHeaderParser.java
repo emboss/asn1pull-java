@@ -43,7 +43,6 @@ import org.jruby.ext.krypt.asn1.TagClass;
  */
 public class PullHeaderParser implements Parser {
 
-    private static final int LONG_BYTE_LEN = Long.SIZE / 8;
     private static final int INT_BYTE_LEN = Integer.SIZE / 8;
     
     private final InputStream in;
@@ -136,10 +135,10 @@ public class PullHeaderParser implements Parser {
     }
     
     private Length parseComplexDefiniteLength(byte b) {
-        long len = 0;
+        int len = 0;
         int numOctets = b & 0x7f;
         
-        if (numOctets > LONG_BYTE_LEN)
+        if (numOctets > INT_BYTE_LEN)
             throw new ParseException("Definite value length too long.");
         
         byte[] encoding = new byte[numOctets+1];

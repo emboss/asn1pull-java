@@ -77,12 +77,12 @@ public class Asn1Parser {
 
     private Constructed parseDefiniteConstructed(Parser hp, ParsedHeader h) {
 	List<Asn1> contents = new ArrayList<Asn1>();
-	long len = h.getLength(), curLen = 0;
+	int len = h.getLength(), curLen = 0;
         ParsedHeader nested;
 
         while (curLen != len) {
 	    nested = hp.next();
-            if (Long.MAX_VALUE - nested.getHeaderLength() - curLen < nested.getLength())
+            if (Integer.MAX_VALUE - nested.getHeaderLength() - curLen < nested.getLength())
                 throw new ParseException("Constructed sequence is too long.");
             curLen = curLen + nested.getHeaderLength() + nested.getLength();
             if (curLen > len)
@@ -113,7 +113,7 @@ public class Asn1Parser {
     
     private static class HeaderImpl implements Header {
 
-        private final long length;
+        private final int length;
         private final int headerLength;
         private final int tag;
         private final TagClass tc;
@@ -132,7 +132,7 @@ public class Asn1Parser {
         }
         
         @Override
-        public long getLength() {
+        public int getLength() {
             return length;
         }
 

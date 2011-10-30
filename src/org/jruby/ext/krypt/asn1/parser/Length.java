@@ -38,17 +38,17 @@ import org.jruby.ext.krypt.asn1.SerializationException;
  */
 class Length {
     
-    private final long length;
+    private final int length;
     private final byte[] encoding;
     private final boolean isInfiniteLength;
     
-    public Length(long length, boolean isInfiniteLength, byte[] encoding) {
+    public Length(int length, boolean isInfiniteLength, byte[] encoding) {
         this.length = length;
         this.isInfiniteLength = isInfiniteLength;
         this.encoding = encoding;
     }
     
-    public long getLength() {
+    public int getLength() {
         return length;
     }
     
