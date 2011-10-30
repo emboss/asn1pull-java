@@ -27,12 +27,9 @@
  */
 package org.jruby.ext.krypt.asn1.parser;
 
-import org.jruby.ext.krypt.asn1.Encodable;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import org.jruby.ext.krypt.asn1.Header;
 import org.jruby.ext.krypt.asn1.ParseException;
 import org.jruby.ext.krypt.asn1.Parser;
