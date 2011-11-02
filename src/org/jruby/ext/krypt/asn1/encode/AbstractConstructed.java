@@ -97,10 +97,12 @@ abstract class AbstractConstructed extends Constructed {
         this.header = null; //needs to be recomputed
     }
     
-    public void setTag(int contextSpecific) {
-        this.tag = contextSpecific;
-        this.tc = TagClass.CONTEXT_SPECIFIC;
+    public void setTagAndClass(int tag, TagClass tc) {
+        if (tc == null) throw new NullPointerException();
+        
+        this.tag = tag;
+        this.tc = tc;
         this.header = null; //needs to be recomputed
     }
-    
+
 }

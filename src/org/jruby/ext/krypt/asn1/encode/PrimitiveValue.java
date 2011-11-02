@@ -80,13 +80,13 @@ public class PrimitiveValue extends Primitive {
         
         this.tag = tag;
         this.tc = tc;
-        this.header = null;
+        this.header = null; //needs to be recomputed
     }
     
     @Override
     public void setValue(byte[] value) {
         super.setValue(value);
-        this.header = null;
+        this.header = null; //needs to be recomputed
     }
     
 }
