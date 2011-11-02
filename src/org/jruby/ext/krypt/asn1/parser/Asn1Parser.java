@@ -25,12 +25,20 @@
 * the provisions above, a recipient may use your version of this file under
 * the terms of any one of the CPL, the GPL or the LGPL.
  */
-package org.jruby.ext.krypt.asn1;
+package org.jruby.ext.krypt.asn1.parser;
 
+import org.jruby.ext.krypt.asn1.ParseException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import org.jruby.ext.krypt.asn1.Asn1;
+import org.jruby.ext.krypt.asn1.GenericAsn1;
+import org.jruby.ext.krypt.asn1.Header;
+import org.jruby.ext.krypt.asn1.ParsedHeader;
+import org.jruby.ext.krypt.asn1.Parser;
+import org.jruby.ext.krypt.asn1.ParserFactory;
+import org.jruby.ext.krypt.asn1.Primitive;
+import org.jruby.ext.krypt.asn1.Tags;
 
 
 /**
@@ -65,17 +73,18 @@ public class Asn1Parser {
     }
     
     private Primitive parsePrimitive(ParsedHeader h) {
-        return new Primitive(new HeaderImpl(h, h.getEncodable()), h.getValue());
+        Header impl = GenericAsn1.headerFor(h.getParsedTag(), h.getParsedLength());
+        return new ParsedPrimitive(impl, h.getValue());
     }
     
-    private Constructed parseConstructed(Parser hp, ParsedHeader h, InputStream in) {
+    private ParsedConstructed parseConstructed(Parser hp, ParsedHeader h, InputStream in) {
         if (h.isInfiniteLength())
             return parseInfiniteConstructed(hp, h, in);
 	else
 	    return parseDefiniteConstructed(hp, h, in);
     }
 
-    private Constructed parseDefiniteConstructed(Parser hp, ParsedHeader h, InputStream in) {
+    private ParsedConstructed parseDefiniteConstructed(Parser hp, ParsedHeader h, InputStream in) {
 	List<Asn1> contents = new ArrayList<Asn1>();
 	int len = h.getLength(), curLen = 0;
         ParsedHeader nested;
@@ -91,10 +100,11 @@ public class Asn1Parser {
             contents.add(parse(hp, nested, in));
         }
 
-        return new Constructed(new HeaderImpl(h, h.getEncodable()), contents);
+        Header impl = GenericAsn1.headerFor(h.getParsedTag(), h.getParsedLength());
+        return new ParsedConstructed(impl, contents);
     }
 
-    private Constructed parseInfiniteConstructed(Parser hp, ParsedHeader h, InputStream in) {
+    private ParsedConstructed parseInfiniteConstructed(Parser hp, ParsedHeader h, InputStream in) {
         List<Asn1> contents = new ArrayList<Asn1>();
 	boolean parsedEof = false;
         ParsedHeader nested;
@@ -108,63 +118,8 @@ public class Asn1Parser {
                 parsedEof = true;
             }
         }
-        return new Constructed(new HeaderImpl(h, h.getEncodable()), contents);
+        Header impl = GenericAsn1.headerFor(h.getParsedTag(), h.getParsedLength());
+        return new ParsedConstructed(impl, contents);
     }
-    
-    private static class HeaderImpl implements Header {
 
-        private final int length;
-        private final int headerLength;
-        private final int tag;
-        private final TagClass tc;
-        private final boolean isInfinite;
-        private final boolean isConstructed;
-        private final Encodable enc;
-
-        public HeaderImpl(ParsedHeader h, Encodable enc) {
-            this.length = h.getLength();
-            this.headerLength = h.getHeaderLength();
-            this.tag = h.getTag();
-            this.tc = h.getTagClass();
-            this.isInfinite = h.isInfiniteLength();
-            this.isConstructed = h.isConstructed();
-            this.enc = enc;
-        }
-        
-        @Override
-        public int getLength() {
-            return length;
-        }
-
-        @Override
-        public int getHeaderLength() {
-            return headerLength;
-        }
-
-        @Override
-        public int getTag() {
-            return tag;
-        }
-
-        @Override
-        public TagClass getTagClass() {
-            return tc;
-        }
-
-        @Override
-        public boolean isConstructed() {
-            return isConstructed;
-        }
-
-        @Override
-        public boolean isInfiniteLength() {
-            return isInfinite;
-        }
-
-        @Override
-        public void encodeTo(OutputStream out) {
-            enc.encodeTo(out);
-        }
-        
-    }
 }

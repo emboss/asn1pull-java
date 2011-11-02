@@ -27,17 +27,20 @@
  */
 package org.jruby.ext.krypt.asn1;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import org.jruby.ext.krypt.asn1.resources.Resources;
 import java.io.IOException;
 import java.io.InputStream;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import static org.jruby.ext.krypt.asn1.Utils.*;
 
 /**
  * 
  * @author <a href="mailto:Martin.Bosslet@googlemail.com">Martin Bosslet</a>
  */
-public class HeaderParserTest {
+public class ParserTest {
     
     @Test
     public void parseTokensSkippingTopLevel() throws Exception {
@@ -89,7 +92,7 @@ public class HeaderParserTest {
             Parser p = new ParserFactory().newHeaderParser();
             while ((token = p.next(in)) != null) {
                 numTokens++;
-                consumeTokenStream(token); //need to consume the value bytes
+                consume(token.getValueStream()); //need to consume the value bytes
             }
             assertEquals(1, numTokens);
         }
@@ -110,21 +113,9 @@ public class HeaderParserTest {
                 numTokens++;
                 if (token.isConstructed())
                     continue;
-                consumeTokenStream(token); //need to consume the value bytes
+                consume(token.getValueStream()); //need to consume the value bytes
             }
             assertTrue(numTokens > 1);
-        }
-        finally {
-            in.close();
-        }
-    }
-    
-    private static void consumeTokenStream(ParsedHeader token) throws IOException {
-        InputStream in = token.getValueStream();
-
-        try {
-            byte[] buf = new byte[8192];
-            while (in.read(buf) != -1) {}
         }
         finally {
             in.close();
@@ -147,12 +138,40 @@ public class HeaderParserTest {
                 token.isInfiniteLength();
                 if (token.isConstructed())
                     continue;
-                //consumes primitive value
-                assertNotNull(token.getValue());
+                //consume primitive value
+                int tag = token.getTag();
+                if (Tags.NULL == tag || Tags.END_OF_CONTENTS == tag) {
+                    assertNull(token.getValue());
+                }
+                else {
+                    assertNotNull(token.getValue());
+                }
             }
         }
         finally {
             in.close();
         }
+    }
+    
+    @Test
+    public void infiniteLengthParsing() throws IOException {
+        byte[] raw = bytesOf(0x24,0x80,0x04,0x01,0x01,0x04,0x01,0x02,0x00,0x00);
+        
+        Parser p = new ParserFactory().newHeaderParser();
+        InputStream in = new ByteArrayInputStream(raw);
+        ParsedHeader h = p.next(in);
+        assertEquals(Tags.OCTET_STRING, h.getTag());
+        assertEquals(TagClass.UNIVERSAL, h.getTagClass());
+        assertTrue(h.isConstructed());
+        assertTrue(h.isInfiniteLength());
+        assertEquals(-1, h.getLength());
+        assertEquals(2, h.getHeaderLength());
+        
+        InputStream chunkIn = h.getValueStream();
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        byte[] result = consume(chunkIn);
+        h.encodeTo(baos);
+        baos.write(result);
+        assertArrayEquals(raw, baos.toByteArray());
     }
 }

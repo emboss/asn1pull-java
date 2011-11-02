@@ -27,15 +27,16 @@
  */
 package org.jruby.ext.krypt.asn1.parser;
 
-import java.io.ByteArrayInputStream;
+import org.jruby.ext.krypt.asn1.ParseException;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import org.jruby.ext.krypt.asn1.Encodable;
-import org.jruby.ext.krypt.asn1.ParseException;
+import org.jruby.ext.krypt.asn1.GenericAsn1.Length;
+import org.jruby.ext.krypt.asn1.GenericAsn1.Tag;
 import org.jruby.ext.krypt.asn1.ParsedHeader;
+import org.jruby.ext.krypt.asn1.SerializationException;
 import org.jruby.ext.krypt.asn1.TagClass;
 
 /**
@@ -46,20 +47,25 @@ class ParsedHeaderImpl implements ParsedHeader {
 
     private final Tag tag;
     private final Length length;
-    private final Encodable encodable;
     private final InputStream in;
+    private final PullHeaderParser parser;
+    
+    private InputStream valueStream;
 
-    public ParsedHeaderImpl(Tag tag, Length length, InputStream in) {
+    ParsedHeaderImpl(Tag tag, 
+                     Length length, 
+                     InputStream in,
+                     PullHeaderParser parser) {
+        if (tag == null) throw new NullPointerException();
+        if (length == null) throw new NullPointerException();
+        if (in == null) throw new NullPointerException();
+        if (parser == null) throw new NullPointerException();
+        
 	this.tag = tag;
 	this.length = length;
 	this.in = in;
-	this.encodable = new Encodable() {
-	    public void encodeTo(OutputStream out) {
-		ParsedHeaderImpl.this.tag.encodeTo(out);
-		ParsedHeaderImpl.this.length.encodeTo(out);
-	    }
-	};
-    }
+        this.parser = parser;
+   }
 
     @Override
     public void skipValue() {
@@ -68,20 +74,19 @@ class ParsedHeaderImpl implements ParsedHeader {
 
     @Override
     public byte[] getValue() {
-	//TODO: Make this work for OCTET_STRING etc.
-	if (length.isInfiniteLength())
-	    throw new IllegalStateException("Not supported when current header is infinite length.");
-	else
-            return consume(getValueStream());
+	byte[] ret = consume(getValueStream());
+        return ret.length == 0 ? null : ret;
     }
 
-    //TODO: Implement this properly
     @Override
     public InputStream getValueStream() {
-	if (length.isInfiniteLength())
-	    throw new IllegalStateException("Not supported when current header is infinite length.");
-	else
-            return new DefiniteInputStream(in, length.getLength());
+        if (valueStream == null) {
+            if (length.isInfiniteLength())
+                valueStream = new ChunkInputStream(in, parser);
+            else
+                valueStream = new DefiniteInputStream(in, length.getLength());
+        }
+        return valueStream;
     }
 
     private byte[] consume(InputStream stream) {
@@ -102,11 +107,6 @@ class ParsedHeaderImpl implements ParsedHeader {
         return baos.toByteArray();
     }
     
-    @Override
-    public Encodable getEncodable() {
-	return encodable;
-    }
-
     @Override
     public int getTag() {
 	return tag.getTag();
@@ -134,12 +134,27 @@ class ParsedHeaderImpl implements ParsedHeader {
 
     @Override
     public int getHeaderLength() {
-	return tag.getEncodingLength() + length.getEncodingLength();
+	return tag.getEncoding().length + length.getEncoding().length;
     }
 
     @Override
     public void encodeTo(OutputStream out) {
-	encodable.encodeTo(out);
+	try {
+            out.write(tag.getEncoding());
+            out.write(length.getEncoding());
+        }
+        catch (IOException ex) {
+            throw new SerializationException(ex);
+        }
     }
 
+    @Override
+    public Length getParsedLength() {
+        return length;
+    }
+
+    @Override
+    public Tag getParsedTag() {
+        return tag;
+    }
 }

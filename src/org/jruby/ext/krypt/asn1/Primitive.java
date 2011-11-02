@@ -32,31 +32,19 @@ package org.jruby.ext.krypt.asn1;
  * 
  * @author <a href="mailto:Martin.Bosslet@googlemail.com">Martin Bosslet</a>
  */
-public class Primitive implements Asn1 {
-    private Header header;
+public abstract class Primitive implements Asn1 {
+    
     private byte[] value;
     
-    public Primitive(Header header, byte[] value) {
-        if (header == null) throw new NullPointerException();
-        if (value == null) throw new NullPointerException();
-
-        this.header = header;
+    public Primitive(byte[] value) {
         this.value = value;
     }
     
-    @Override
-    public Header getHeader() {
-        return header;
+    protected void setValue(byte[] value) {
+        this.value = value;
     }
     
-    @Override
     public byte[] getValue() {
         return value;
     }
-
-    @Override
-    public boolean isConstructed() {
-        return false;
-    }
-
 }

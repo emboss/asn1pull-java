@@ -28,6 +28,8 @@
 package org.jruby.ext.krypt.asn1;
 
 import java.io.InputStream;
+import org.jruby.ext.krypt.asn1.GenericAsn1.Length;
+import org.jruby.ext.krypt.asn1.GenericAsn1.Tag;
 
 
 /**
@@ -39,6 +41,7 @@ public interface ParsedHeader extends Header {
     public void skipValue();
     public byte[] getValue();
     public InputStream getValueStream();
-    public Encodable getEncodable();
+    public Tag getParsedTag();
+    public Length getParsedLength();
     
 }

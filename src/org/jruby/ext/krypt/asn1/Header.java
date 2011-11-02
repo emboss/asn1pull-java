@@ -27,12 +27,14 @@
  */
 package org.jruby.ext.krypt.asn1;
 
+import java.io.OutputStream;
+
 
 /**
  * 
  * @author <a href="mailto:Martin.Bosslet@googlemail.com">Martin Bosslet</a>
  */
-public interface Header extends Encodable {
+public interface Header {
 
     public static final byte CONSTRUCTED_MASK     = (byte)0x20;
     public static final byte COMPLEX_TAG_MASK     = (byte)0x1f;
@@ -44,5 +46,7 @@ public interface Header extends Encodable {
     public boolean isInfiniteLength();
     public int getLength();
     public int getHeaderLength();
+    
+    public void encodeTo(OutputStream out);
     
 }

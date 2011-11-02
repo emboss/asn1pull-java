@@ -25,15 +25,21 @@
 * the provisions above, a recipient may use your version of this file under
 * the terms of any one of the CPL, the GPL or the LGPL.
  */
-package org.jruby.ext.krypt.asn1;
+package org.jruby.ext.krypt.asn1.encode;
+
+import java.util.List;
+import org.jruby.ext.krypt.asn1.Asn1;
 
 
 /**
  * 
  * @author <a href="mailto:Martin.Bosslet@googlemail.com">Martin Bosslet</a>
  */
-public interface Asn1 {
-   
-    public Header getHeader();
+public class InfiniteLengthValue extends AbstractConstructed {
 
+    public InfiniteLengthValue(int tag, List<Asn1> chunkedValue) {
+        super(tag, chunkedValue);
+        setInfiniteLength(true);
+    }
+    
 }

@@ -25,15 +25,32 @@
 * the provisions above, a recipient may use your version of this file under
 * the terms of any one of the CPL, the GPL or the LGPL.
  */
-package org.jruby.ext.krypt.asn1;
+package org.jruby.ext.krypt.asn1.parser;
+
+import java.util.List;
+import org.jruby.ext.krypt.asn1.Asn1;
+import org.jruby.ext.krypt.asn1.Constructed;
+import org.jruby.ext.krypt.asn1.Header;
 
 
 /**
  * 
  * @author <a href="mailto:Martin.Bosslet@googlemail.com">Martin Bosslet</a>
  */
-public interface Asn1 {
-   
-    public Header getHeader();
+class ParsedConstructed extends Constructed {
+    
+    private final Header header;
+    
+    protected ParsedConstructed(Header header, List<Asn1> contents) {
+	super(contents);
+        if (header == null) throw new NullPointerException();
+	
+        this.header = header;
+    }
+    
+    @Override
+    public Header getHeader() {
+        return header;
+    }
 
 }

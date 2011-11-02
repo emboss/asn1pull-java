@@ -25,48 +25,68 @@
 * the provisions above, a recipient may use your version of this file under
 * the terms of any one of the CPL, the GPL or the LGPL.
  */
-package org.jruby.ext.krypt.asn1.parser;
+package org.jruby.ext.krypt.asn1.encode;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import org.jruby.ext.krypt.asn1.SerializationException;
+import org.jruby.ext.krypt.asn1.GenericAsn1;
+import org.jruby.ext.krypt.asn1.GenericAsn1.Length;
+import org.jruby.ext.krypt.asn1.GenericAsn1.Tag;
+import org.jruby.ext.krypt.asn1.Header;
+import org.jruby.ext.krypt.asn1.Primitive;
+import org.jruby.ext.krypt.asn1.TagClass;
 
 
 /**
  * 
  * @author <a href="mailto:Martin.Bosslet@googlemail.com">Martin Bosslet</a>
  */
-class Length {
+public class PrimitiveValue extends Primitive {
     
-    private final int length;
-    private final byte[] encoding;
-    private final boolean isInfiniteLength;
+    private int tag;
+    private TagClass tc;
     
-    public Length(int length, boolean isInfiniteLength, byte[] encoding) {
-        this.length = length;
-        this.isInfiniteLength = isInfiniteLength;
-        this.encoding = encoding;
+    private Header header;
+
+    public PrimitiveValue(int tag, TagClass tc, byte[] value) {
+        super(value);
+        if (tc == null) throw new NullPointerException();
+        if (tag > 30 && tc == TagClass.UNIVERSAL)
+            throw new IllegalArgumentException("UNIVERSAL tags must be <= 30");
+        this.tag = tag;
+        this.tc = tc;
     }
     
-    public int getLength() {
-        return length;
-    }
-    
-    public boolean isInfiniteLength() {
-        return isInfiniteLength;
+    public PrimitiveValue(int tag, byte[] value) {
+        this(tag, TagClass.UNIVERSAL, value);
     }
 
-    public int getEncodingLength() {
-        return encoding.length;
+    @Override
+    public Header getHeader() {
+        if (header == null) {
+            header = computeHeader();
+        }
+        return header;
     }
     
-    public void encodeTo(OutputStream out) {
-        try {
-            out.write(encoding);
-        }
-        catch (IOException ex) {
-            throw new SerializationException(ex);
-        }
+    private Header computeHeader() {
+        Tag t = new Tag(tag, tc, false);
+        byte[] value = getValue();
+        int len = value == null ? 0 : value.length;
+        Length l = new Length(len, false);
+        return GenericAsn1.headerFor(t, l);
+    }
+    
+    public void setTagAndClass(int tag, TagClass tc) {
+        if (tc == null) throw new NullPointerException();
+        
+        this.tag = tag;
+        this.tc = tc;
+        this.header = null;
+    }
+    
+    @Override
+    public void setValue(byte[] value) {
+        super.setValue(value);
+        this.header = null;
     }
     
 }

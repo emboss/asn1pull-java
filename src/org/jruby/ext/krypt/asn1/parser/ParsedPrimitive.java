@@ -25,17 +25,29 @@
 * the provisions above, a recipient may use your version of this file under
 * the terms of any one of the CPL, the GPL or the LGPL.
  */
-package org.jruby.ext.krypt.asn1;
+package org.jruby.ext.krypt.asn1.parser;
 
-import java.io.OutputStream;
+import org.jruby.ext.krypt.asn1.Header;
+import org.jruby.ext.krypt.asn1.Primitive;
 
 
 /**
- *
+ * 
  * @author <a href="mailto:Martin.Bosslet@googlemail.com">Martin Bosslet</a>
  */
-public interface Encodable {
-
-        public void encodeTo(OutputStream out);
-
+class ParsedPrimitive extends Primitive {
+    private Header header;
+    
+    public ParsedPrimitive(Header header, byte[] value) {
+        super(value);
+        if (header == null) throw new NullPointerException();
+        
+        this.header = header;
+    }
+    
+    @Override
+    public Header getHeader() {
+        return header;
+    }
+    
 }

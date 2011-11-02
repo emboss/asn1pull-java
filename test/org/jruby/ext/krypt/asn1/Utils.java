@@ -25,60 +25,51 @@
 * the provisions above, a recipient may use your version of this file under
 * the terms of any one of the CPL, the GPL or the LGPL.
  */
-package org.jruby.ext.krypt.asn1.parser;
+package org.jruby.ext.krypt.asn1;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
-import org.jruby.ext.krypt.asn1.SerializationException;
-import org.jruby.ext.krypt.asn1.TagClass;
-
+import java.io.InputStream;
 
 /**
  * 
  * @author <a href="mailto:Martin.Bosslet@googlemail.com">Martin Bosslet</a>
  */
-class Tag {
+public class Utils {
     
-    private final int tag;
-    private final TagClass tc;
-    private final boolean isConstructed;
+    private Utils() {}
     
-    private final byte[] encoding;
-    
-    Tag(int tag, 
-        TagClass tc, 
-        boolean isConstructed, 
-        byte[] encoding) {
-        if (tc == null) throw new NullPointerException();
-
-        this.tag = tag;
-        this.tc = tc;
-        this.isConstructed = isConstructed;
-        this.encoding = encoding;
-    }
-    
-    public int getTag() {
-        return tag;
-    }
-    
-    public TagClass getTagClass() {
-        return tc;
-    }
-    
-    public boolean isConstructed() {
-        return isConstructed;
-    }
-
-    public int getEncodingLength() {
-        return encoding.length;
-    }
-    
-    public void encodeTo(OutputStream out) {
+    public static byte[] consume(InputStream stream) {
+        
+        byte[] buf = new byte[8192];
+        int read = 0;
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        
         try {
-            out.write(encoding);
+            while ((read = stream.read(buf)) != -1) {
+                baos.write(buf, 0, read);
+            }
         }
         catch (IOException ex) {
-            throw new SerializationException(ex);
+                throw new ParseException(ex);
         }
+        
+        return baos.toByteArray();
+    }
+    
+    public static byte[] bytesOf(Integer... bytes) {
+        byte[] ret = new byte[bytes.length];
+        for (int i = 0; i < bytes.length; i++) {
+            ret[i] = bytes[i].byteValue();
+        }
+        return ret;
+    }
+    
+    public static byte[] byteTimes(int b, int times) {
+        byte[] ret = new byte[times];
+        for (int i = 0; i < times; i++) {
+            ret[i] = (byte)b;
+        }
+        return ret;
     }
 }

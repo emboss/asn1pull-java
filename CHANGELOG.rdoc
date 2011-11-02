@@ -1,3 +1,8 @@
+=== 0.1.0 / 2011-11-02 [emboss]
+* Add streaming support for infinite length values.
+* Add classes to support encoding ASN.1 values from scratch.
+* Add tests.
+ 
 === 0.1.0 / 2011-10-30 [emboss]
 * Make Parser stateless and reusable.
 * Support streaming for definite length values.

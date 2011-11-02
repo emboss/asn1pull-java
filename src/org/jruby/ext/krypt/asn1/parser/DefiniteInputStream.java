@@ -27,22 +27,22 @@
  */
 package org.jruby.ext.krypt.asn1.parser;
 
+import org.jruby.ext.krypt.asn1.ParseException;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import org.jruby.ext.krypt.asn1.ParseException;
 
 
 /**
  * 
  * @author <a href="mailto:Martin.Bosslet@googlemail.com">Martin Bosslet</a>
  */
-public class DefiniteInputStream extends FilterInputStream {
+class DefiniteInputStream extends FilterInputStream {
 
     private int read = 0;
     private final int length;
     
-    public DefiniteInputStream(InputStream in, int length) {
+    DefiniteInputStream(InputStream in, int length) {
         super(in);
         if (length < 0) throw new IllegalArgumentException("Length must be positive");
         this.length = length;

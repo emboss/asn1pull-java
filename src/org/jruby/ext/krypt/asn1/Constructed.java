@@ -34,31 +34,17 @@ import java.util.List;
  * 
  * @author <a href="mailto:Martin.Bosslet@googlemail.com">Martin Bosslet</a>
  */
-public class Constructed implements Asn1 {
+public abstract class Constructed implements Asn1 {
     
-    private final Header header;
-    private final List<Asn1> contents;
+    private final List<Asn1> content;
     
-    protected Constructed(Header header, List<Asn1> contents) {
-	if (header == null) throw new NullPointerException();
-	if (contents == null) throw new NullPointerException();
-	
-        this.header = header;
-        this.contents = contents;
+    protected Constructed(List<Asn1> content) {
+	if (content == null) throw new NullPointerException();
+        this.content = content;
     }
     
-    @Override
-    public List<Asn1> getValue() {
-        return contents;
+    public List<Asn1> getContent() {
+        return content;
     }
 
-    @Override
-    public Header getHeader() {
-        return header;
-    }
-
-    @Override
-    public boolean isConstructed() {
-        return true;
-    }
 }

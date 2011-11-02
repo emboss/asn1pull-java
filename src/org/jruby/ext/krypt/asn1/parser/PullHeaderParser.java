@@ -27,11 +27,13 @@
  */
 package org.jruby.ext.krypt.asn1.parser;
 
+import org.jruby.ext.krypt.asn1.ParseException;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import org.jruby.ext.krypt.asn1.GenericAsn1.Length;
+import org.jruby.ext.krypt.asn1.GenericAsn1.Tag;
 import org.jruby.ext.krypt.asn1.Header;
-import org.jruby.ext.krypt.asn1.ParseException;
 import org.jruby.ext.krypt.asn1.Parser;
 import org.jruby.ext.krypt.asn1.ParsedHeader;
 import org.jruby.ext.krypt.asn1.TagClass;
@@ -57,7 +59,7 @@ public class PullHeaderParser implements Parser {
         byte b = (byte)read;
         Tag tag = parseTag(b, in);
 	Length length = parseLength(in);
-	return new ParsedHeaderImpl(tag, length, in);
+	return new ParsedHeaderImpl(tag, length, in, this);
     }
     
     private byte nextByte(InputStream in) {
@@ -106,7 +108,7 @@ public class PullHeaderParser implements Parser {
         while (matchMask(b, Header.INFINITE_LENGTH_MASK)) {
             tag <<= 7;
             tag |= (b & 0x7f);
-            if (tag > (INT_BYTE_LEN >> 7))
+            if (tag > (Integer.MAX_VALUE >> 7))
                 throw new ParseException("Complex tag too long.");
             baos.write(b & 0xff);
             b = nextByte(in);
