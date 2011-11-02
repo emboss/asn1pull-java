@@ -1,10 +1,8 @@
-nbproject
+nbproject/private
 build
 dist
 doc
 tmp
-build.xml
-manifest.mf
 .classpath
 .project
 *.class
