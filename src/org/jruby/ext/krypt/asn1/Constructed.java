@@ -27,23 +27,21 @@
  */
 package org.jruby.ext.krypt.asn1;
 
-import java.util.List;
-
 
 /**
  * 
  * @author <a href="mailto:Martin.Bosslet@googlemail.com">Martin Bosslet</a>
  */
-public abstract class Constructed implements Asn1 {
+public abstract class Constructed<I extends Iterable<Asn1>> implements Asn1 {
     
-    private final List<Asn1> content;
+    private final I content;
     
-    protected Constructed(List<Asn1> content) {
+    protected Constructed(I content) {
 	if (content == null) throw new NullPointerException();
         this.content = content;
     }
     
-    public List<Asn1> getContent() {
+    public I getContent() {
         return content;
     }
 

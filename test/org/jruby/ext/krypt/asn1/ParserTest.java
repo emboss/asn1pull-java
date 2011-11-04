@@ -92,7 +92,7 @@ public class ParserTest {
             Parser p = new ParserFactory().newHeaderParser();
             while ((token = p.next(in)) != null) {
                 numTokens++;
-                consume(token.getValueStream()); //need to consume the value bytes
+                consume(token.getValueStream(false)); //need to consume the value bytes
             }
             assertEquals(1, numTokens);
         }
@@ -113,7 +113,7 @@ public class ParserTest {
                 numTokens++;
                 if (token.isConstructed())
                     continue;
-                consume(token.getValueStream()); //need to consume the value bytes
+                consume(token.getValueStream(false)); //need to consume the value bytes
             }
             assertTrue(numTokens > 1);
         }
@@ -167,11 +167,32 @@ public class ParserTest {
         assertEquals(-1, h.getLength());
         assertEquals(2, h.getHeaderLength());
         
-        InputStream chunkIn = h.getValueStream();
+        InputStream chunkIn = h.getValueStream(false);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         byte[] result = consume(chunkIn);
         h.encodeTo(baos);
         baos.write(result);
         assertArrayEquals(raw, baos.toByteArray());
+    }
+    
+    @Test
+    public void infiniteLengthParsingValuesOnly() throws IOException {
+        byte[] raw = bytesOf(0x24,0x80,0x04,0x01,0x01,0x04,0x01,0x02,0x00,0x00);
+        
+        Parser p = new ParserFactory().newHeaderParser();
+        InputStream in = new ByteArrayInputStream(raw);
+        ParsedHeader h = p.next(in);
+        assertEquals(Tags.OCTET_STRING, h.getTag());
+        assertEquals(TagClass.UNIVERSAL, h.getTagClass());
+        assertTrue(h.isConstructed());
+        assertTrue(h.isInfiniteLength());
+        assertEquals(-1, h.getLength());
+        assertEquals(2, h.getHeaderLength());
+        
+        InputStream chunkIn = h.getValueStream(true);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        byte[] result = consume(chunkIn);
+        baos.write(result);
+        assertArrayEquals(bytesOf(0x01,0x02), baos.toByteArray());
     }
 }

@@ -37,7 +37,7 @@ import org.jruby.ext.krypt.asn1.Tags;
  * 
  * @author <a href="mailto:Martin.Bosslet@googlemail.com">Martin Bosslet</a>
  */
-public class Sequence extends AbstractConstructed {
+public class Sequence extends ConstructedList {
 
     public Sequence(List<Asn1> contents) {
         super(Tags.SEQUENCE, contents);

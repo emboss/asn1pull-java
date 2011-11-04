@@ -40,7 +40,7 @@ public interface ParsedHeader extends Header {
     
     public void skipValue();
     public byte[] getValue();
-    public InputStream getValueStream();
+    public InputStream getValueStream(boolean valuesOnly);
     public Tag getParsedTag();
     public Length getParsedLength();
     

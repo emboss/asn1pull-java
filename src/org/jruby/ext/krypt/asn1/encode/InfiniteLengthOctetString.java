@@ -27,46 +27,22 @@
  */
 package org.jruby.ext.krypt.asn1.encode;
 
-import org.jruby.ext.krypt.asn1.SerializationException;
-import java.io.IOException;
-import java.io.OutputStream;
-import org.jruby.ext.krypt.asn1.Asn1;
-import org.jruby.ext.krypt.asn1.Constructed;
-import org.jruby.ext.krypt.asn1.Primitive;
+import java.io.InputStream;
+import org.jruby.ext.krypt.asn1.Tags;
 
 
 /**
  * 
  * @author <a href="mailto:Martin.Bosslet@googlemail.com">Martin Bosslet</a>
  */
-public class Asn1Serializer {
-    
-    private Asn1Serializer() {}
-    
-    public static void serialize(Asn1 asn, OutputStream out) {
-        if (asn.getHeader().isConstructed()) 
-            serializeConstructed((Constructed<?>)asn, out);
-        else 
-            serializePrimitive((Primitive)asn, out);
+public class InfiniteLengthOctetString extends InfiniteLengthStreamingValue {
+
+    public InfiniteLengthOctetString(InputStream source) {
+        super(source, Tags.OCTET_STRING);
     }
-    
-    private static void serializeConstructed(Constructed<?> c, OutputStream out) {
-        c.getHeader().encodeTo(out);
-        for (Asn1 asn : c.getContent()) {
-            serialize(asn, out);
-        }
-    }
-    
-    private static void serializePrimitive(Primitive p, OutputStream out) {
-        try {
-            p.getHeader().encodeTo(out);
-            byte[] value = p.getValue();
-            if (value != null)
-                out.write(p.getValue());
-        }
-        catch (IOException ex) {
-            throw new SerializationException(ex);
-        }
+
+    public InfiniteLengthOctetString(InputStream source, int chunkSize) {
+        super(source, Tags.OCTET_STRING, chunkSize);
     }
     
 }

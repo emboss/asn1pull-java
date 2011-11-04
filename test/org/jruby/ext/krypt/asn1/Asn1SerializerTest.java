@@ -27,11 +27,18 @@
  */
 package org.jruby.ext.krypt.asn1;
 
+import org.jruby.ext.krypt.asn1.encode.InfiniteLengthBitString;
+import java.io.InputStream;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import org.jruby.ext.krypt.asn1.encode.Asn1Serializer;
-import org.jruby.ext.krypt.asn1.encode.InfiniteLengthValue;
+import org.jruby.ext.krypt.asn1.encode.InfiniteLengthOctetString;
+import org.jruby.ext.krypt.asn1.encode.InfiniteLengthStreamingValue;
+import org.jruby.ext.krypt.asn1.encode.InfiniteLengthListValue;
 import org.jruby.ext.krypt.asn1.encode.PrimitiveValue;
 import org.jruby.ext.krypt.asn1.encode.Sequence;
 import org.junit.After;
@@ -225,7 +232,7 @@ public class Asn1SerializerTest {
            add(new PrimitiveValue(Tags.OCTET_STRING, bytesOf(0x02)));
            add(new PrimitiveValue(Tags.END_OF_CONTENTS, null));
         }};
-        InfiniteLengthValue val = new InfiniteLengthValue(Tags.OCTET_STRING, content);
+        InfiniteLengthListValue val = new InfiniteLengthListValue(Tags.OCTET_STRING, content);
         
         Header h = val.getHeader();
         assertEquals(Tags.OCTET_STRING, h.getTag());
@@ -240,5 +247,69 @@ public class Asn1SerializerTest {
         byte[] result = baos.toByteArray();
         byte[] expected = bytesOf(0x24,0x80,0x04,0x01,0x01,0x04,0x01,0x02,0x00,0x00);
         assertArrayEquals(expected, result);
+    }
+    
+    @Test
+    public void streamingOctetStringDefaultChunkSize() throws Exception {
+        streamingDefaultChunkSize(InfiniteLengthOctetString.class, Tags.OCTET_STRING);
+    }
+    
+    @Test
+    public void streamingBitStringDefaultChunkSize() throws Exception {
+        streamingDefaultChunkSize(InfiniteLengthBitString.class, Tags.BIT_STRING);
+    }
+    
+    @Test
+    public void streamingOctetStringExplicitChunkSize() throws Exception {
+        streamingExplicitChunkSize(InfiniteLengthOctetString.class, Tags.OCTET_STRING, 42);
+    }
+    
+    @Test
+    public void streamingBitStringExplicitChunkSize() throws Exception {
+        streamingExplicitChunkSize(InfiniteLengthBitString.class, Tags.BIT_STRING, 42);
+    }
+    
+    private void streamingDefaultChunkSize(Class<? extends InfiniteLengthStreamingValue> clazz, int tag) throws Exception {
+        byte[] value = byteTimes(0x01, InfiniteLengthStreamingValue.DEFAULT_CHUNK_SIZE * 2 + 1);
+        
+        InfiniteLengthStreamingValue val = clazz.getConstructor(InputStream.class)
+                                                .newInstance(new ByteArrayInputStream(value));
+        
+        streamingChunked(val, tag, InfiniteLengthStreamingValue.DEFAULT_CHUNK_SIZE, bytesOf(0x82,0x20,0x00));
+    }
+    
+    private void streamingExplicitChunkSize(Class<? extends InfiniteLengthStreamingValue> clazz, int tag, int chunkSize) throws Exception {
+        byte[] value = byteTimes(0x01, chunkSize * 2 + 1);
+        
+        InfiniteLengthStreamingValue val = clazz.getConstructor(InputStream.class, int.class)
+                                                .newInstance(new ByteArrayInputStream(value), chunkSize);
+        
+        streamingChunked(val, tag, chunkSize, bytesOf(0x2a));
+    }
+    
+    private void streamingChunked(InfiniteLengthStreamingValue val, int tag, int chunkSize, byte[] lengthEncoding) throws Exception {
+        Header h = val.getHeader();
+        assertEquals(tag, h.getTag());
+        assertEquals(TagClass.UNIVERSAL, h.getTagClass());
+        assertTrue(h.isConstructed());
+        assertTrue(h.isInfiniteLength());
+        assertEquals(-1, h.getLength());
+        assertEquals(2, h.getHeaderLength());
+        
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        Asn1Serializer.serialize(val, baos);
+        byte[] result = baos.toByteArray();
+        
+        baos = new ByteArrayOutputStream();
+        baos.write(bytesOf(tag | 0x20,0x80));
+        
+        for(int i=0; i<2; i++) {
+          baos.write(bytesOf(tag));
+          baos.write(lengthEncoding);
+          baos.write(byteTimes(0x01, chunkSize));
+        }
+        
+        baos.write(bytesOf(tag,0x01,0x01,0x00,0x00));
+        assertArrayEquals(baos.toByteArray(), result);
     }
 }

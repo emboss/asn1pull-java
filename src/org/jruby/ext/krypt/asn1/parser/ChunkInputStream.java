@@ -51,16 +51,18 @@ class ChunkInputStream extends FilterInputStream {
     }
     
     private final Parser parser;
+    private final boolean valuesOnly;
     
     private ParsedHeader currentHeader;
     private int headerOffset;
     private State state;
     
-    ChunkInputStream(InputStream in, Parser parser) {
+    ChunkInputStream(InputStream in, Parser parser, boolean valuesOnly) {
         super(in);
         if (parser == null) throw new NullPointerException();
         
         this.parser = parser;
+        this.valuesOnly = valuesOnly;
         this.headerOffset = 0;
         this.state = State.NEW_HEADER;
     }
@@ -83,14 +85,19 @@ class ChunkInputStream extends FilterInputStream {
         switch (state) {
             case NEW_HEADER: 
                 readNewHeader(); //fallthrough
-            case PROCESS_TAG:
-                return readSingleHeaderByte(currentHeader.getParsedTag().getEncoding(),
+            case PROCESS_TAG: {
+                int b = readSingleHeaderByte(currentHeader.getParsedTag().getEncoding(),
                                             State.PROCESS_LENGTH);
-            case PROCESS_LENGTH:
+                if (!valuesOnly)
+                    return b;
+            }
+            case PROCESS_LENGTH: {
                 int b = readSingleHeaderByte(currentHeader.getParsedLength().getEncoding(),
                                               State.PROCESS_VALUE);
                 checkDone();
-                return b;
+                if (!valuesOnly)
+                    return b;
+            }
             case PROCESS_VALUE:
                 return readSingleValueByte();
             default:
@@ -119,7 +126,7 @@ class ChunkInputStream extends FilterInputStream {
     }
     
     private int readSingleValueByte() throws IOException {
-        int b = currentHeader.getValueStream().read();
+        int b = currentHeader.getValueStream(valuesOnly).read();
         if (b == -1) {
             state = State.NEW_HEADER;
             b = readSingleByte();
@@ -146,19 +153,25 @@ class ChunkInputStream extends FilterInputStream {
             case PROCESS_TAG: {
                 read = readHeaderBytes(currentHeader.getParsedTag().getEncoding(),
                                        State.PROCESS_LENGTH, b, off, len);
-                totalRead += read;
-                if (totalRead == len)
-                    return totalRead;
-                off += read;
+                if (!valuesOnly) {
+                    totalRead += read;
+                    if (totalRead == len)
+                        return totalRead;
+                    off += read;
+                }
             } //fallthrough
             case PROCESS_LENGTH: {
                 read = readHeaderBytes(currentHeader.getParsedLength().getEncoding(),
                                            State.PROCESS_VALUE, b, off, len);
-                totalRead += read;
+                
                 checkDone();
-                if (totalRead == len || state == State.DONE)
-                    return totalRead;
-                off += read;
+                
+                if (!valuesOnly) {
+                    totalRead += read;
+                    if (totalRead == len || state == State.DONE)
+                        return totalRead;
+                    off += read;
+                }
             } //fallthrough
             case PROCESS_VALUE:
                 totalRead += readValueBytes(b, off, len);
@@ -191,9 +204,10 @@ class ChunkInputStream extends FilterInputStream {
     }
     
     private int readValueBytes(byte[] b, int off, int len) throws IOException {
-        int read = currentHeader.getValueStream().read(b, off, len);
+        int read = currentHeader.getValueStream(valuesOnly).read(b, off, len);
         if (read == -1) {
-            state = State.NEW_HEADER;
+            if (state != State.DONE)
+                state = State.NEW_HEADER;
             read = 0;
         }
         return read;

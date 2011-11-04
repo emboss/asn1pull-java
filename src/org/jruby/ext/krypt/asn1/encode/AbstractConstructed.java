@@ -27,7 +27,6 @@
  */
 package org.jruby.ext.krypt.asn1.encode;
 
-import java.util.List;
 import org.jruby.ext.krypt.asn1.Asn1;
 import org.jruby.ext.krypt.asn1.Constructed;
 import org.jruby.ext.krypt.asn1.GenericAsn1;
@@ -41,7 +40,7 @@ import org.jruby.ext.krypt.asn1.TagClass;
  * 
  * @author <a href="mailto:Martin.Bosslet@googlemail.com">Martin Bosslet</a>
  */
-abstract class AbstractConstructed extends Constructed {
+abstract class AbstractConstructed<I extends Iterable<Asn1>> extends Constructed<I> {
     
     private int tag;
     
@@ -50,7 +49,7 @@ abstract class AbstractConstructed extends Constructed {
     
     private Header header;
     
-    protected AbstractConstructed(int tag, List<Asn1> contents) {
+    protected AbstractConstructed(int tag, I contents) {
         super(contents);
         this.tag = tag;
     }
@@ -87,9 +86,8 @@ abstract class AbstractConstructed extends Constructed {
         return length;
     }
     
-    public void add (Asn1 asn1) {
-        getContent().add(asn1);
-        this.header = null; //needs to be recomputed
+    protected void invalidateHeader() {
+        this.header = null;
     }
     
     public void setInfiniteLength(boolean infinite) {

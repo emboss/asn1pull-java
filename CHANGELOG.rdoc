@@ -1,3 +1,7 @@
+=== 0.1.0 / 2011-11-04 [emboss]
+* Enable streaming encoding
+* Allow streaming reading of chunked values, omitting intermediate headers.
+
 === 0.1.0 / 2011-11-02 [emboss]
 * Add streaming support for infinite length values.
 * Add classes to support encoding ASN.1 values from scratch.

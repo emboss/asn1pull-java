@@ -27,19 +27,22 @@
  */
 package org.jruby.ext.krypt.asn1.encode;
 
-import java.util.List;
-import org.jruby.ext.krypt.asn1.Asn1;
+import java.io.InputStream;
+import org.jruby.ext.krypt.asn1.Tags;
 
 
 /**
  * 
  * @author <a href="mailto:Martin.Bosslet@googlemail.com">Martin Bosslet</a>
  */
-public class InfiniteLengthValue extends AbstractConstructed {
+public class InfiniteLengthBitString extends InfiniteLengthStreamingValue {
 
-    public InfiniteLengthValue(int tag, List<Asn1> chunkedValue) {
-        super(tag, chunkedValue);
-        setInfiniteLength(true);
+    public InfiniteLengthBitString(InputStream source) {
+        super(source, Tags.BIT_STRING);
+    }
+
+    public InfiniteLengthBitString(InputStream source, int chunkSize) {
+        super(source, Tags.BIT_STRING, chunkSize);
     }
     
 }

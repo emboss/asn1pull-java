@@ -31,7 +31,6 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.List;
 import org.jruby.ext.krypt.asn1.encode.Asn1Serializer;
 import org.jruby.ext.krypt.asn1.parser.Asn1Parser;
 import org.jruby.ext.krypt.asn1.resources.Resources;
@@ -54,9 +53,9 @@ public class Asn1ParserTest {
             assertNotNull(asn);
             assertTrue(asn instanceof Constructed);
             Constructed cons = (Constructed)asn;
-            List<Asn1> contents = cons.getContent();
+            Iterable<Asn1> contents = cons.getContent();
             assertNotNull(contents);
-            assertTrue(contents.size() > 0);
+            assertTrue(contents.iterator().hasNext());
         }
         finally {
             in.close();

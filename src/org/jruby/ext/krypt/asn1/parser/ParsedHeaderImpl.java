@@ -74,15 +74,15 @@ class ParsedHeaderImpl implements ParsedHeader {
 
     @Override
     public byte[] getValue() {
-	byte[] ret = consume(getValueStream());
+	byte[] ret = consume(getValueStream(false));
         return ret.length == 0 ? null : ret;
     }
 
     @Override
-    public InputStream getValueStream() {
+    public InputStream getValueStream(boolean valuesOnly) {
         if (valueStream == null) {
             if (length.isInfiniteLength())
-                valueStream = new ChunkInputStream(in, parser);
+                valueStream = new ChunkInputStream(in, parser, valuesOnly);
             else
                 valueStream = new DefiniteInputStream(in, length.getLength());
         }
