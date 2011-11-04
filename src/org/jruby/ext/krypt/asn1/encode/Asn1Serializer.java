@@ -62,7 +62,7 @@ public class Asn1Serializer {
             p.getHeader().encodeTo(out);
             byte[] value = p.getValue();
             if (value != null)
-                out.write(p.getValue());
+                out.write(value);
         }
         catch (IOException ex) {
             throw new SerializationException(ex);
