@@ -36,7 +36,8 @@ import org.jruby.ext.krypt.asn1.Primitive;
  * @author <a href="mailto:Martin.Bosslet@googlemail.com">Martin Bosslet</a>
  */
 class ParsedPrimitive extends Primitive {
-    private Header header;
+    
+    private final Header header;
     
     public ParsedPrimitive(Header header, byte[] value) {
         super(value);
